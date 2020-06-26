@@ -5,3 +5,12 @@
 main > .container {
   padding: 60px 15px 0;
 }
+
+
+.bg-dark{
+  background-color: #1d47a9!important;
+}
+
+a.nav-link{
+  color: rgba(255,255,255,.55);
+}

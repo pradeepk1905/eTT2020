@@ -11,6 +11,6 @@ main > .container {
   background-color: #1d47a9!important;
 }
 
-a.nav-link{
+header a.nav-link{
   color: rgba(255,255,255,.55);
 }

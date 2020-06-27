@@ -10,6 +10,7 @@
   <!-- Bootstrap core CSS -->
   <link href="assets/dist/css/bootstrap.min.css" rel="stylesheet">
 
+
   <style>
     .bd-placeholder-img {
       font-size: 1.125rem;
@@ -37,7 +38,9 @@
 
 
   <!-- Custom styles for this template -->
-  <link href="sticky-footer-navbar.css" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet">
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.0.1/main.min.css">
+  <link href="calendar.css" rel="stylesheet"> -->
 </head>
 
 <body class="d-flex flex-column h-100">
@@ -79,27 +82,56 @@
         <div class="col">
           <h4>
             Week :
-            <small class="text-muted">22 - 28 June 2020</small>
+            <small class="text-muted">21 - 27 June 2020</small>
           </h4>
         </div>
         <div class="col text-right">
-          <button class="btn btn-outline-primary btn-sm" onclick="save()">Save</button>
+          <div class="btn-group" role="group" aria-label="Basic example">
+            <button type="button" class="btn btn-secondary">
+              <</button> <button type="button" class="btn btn-secondary">>
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="save()">Save</button>
+          </div>
+        </div>
+      </div>
+      <div style="position: relative;" aria-live="assertive" aria-atomic="true">
+        <div class="toast" id="saveToast" role="alert" style="position: absolute; top: 0; right: 0;">
+          <div class="toast-header">
+            <strong class="mr-auto">Saved</strong>
+            <small>just now</small>
+            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="toast-body">
+            Successfully saved
+          </div>
         </div>
       </div>
       <table class="table table-bordered">
         <thead>
           <tr style="    background: #1d47a9;color: white;">
             <th class="align-middle" scope="col">Project / Activity</th>
-            <th class="align-middle text-center" scope="col">Mon<br>22-06</th>
+            <th class="align-middle text-center" scope="col">Sun<br>21/06</th>
+            <th class="align-middle text-center" scope="col">Mon<br>22/06</th>
             <th class="align-middle text-center" scope="col">Tue<br>23/06</th>
             <th class="align-middle text-center" scope="col">Wed<br>24/06</th>
             <th class="align-middle text-center" scope="col">Thu<br>25/06</th>
             <th class="align-middle text-center" scope="col">Fri<br>26/06</th>
             <th class="align-middle text-center" scope="col">Sat<br>27/06</th>
-            <th class="align-middle text-center" scope="col">Sun<br>28/06</th>
           </tr>
         </thead>
         <tbody>
+          <tr class="projectRow" style="background: #9db7f5;      ">
+            <th>Leave</th>
+            <td class="align-middle text-center" onclick="openLeaveModal()"></td>
+            <td class="align-middle text-center" onclick="openLeaveModal()"></td>
+            <td class="align-middle text-center" onclick="openLeaveModal()"></td>
+            <td class=" align-middle text-center" onclick="openLeaveModal()" style="background: #c5ffae;">8</td>
+            <td class="align-middle text-center" onclick="openLeaveModal()"></td>
+            <td class="align-middle text-center" onclick="openLeaveModal()"></td>
+            <td class="align-middle text-center" onclick="openLeaveModal()"></td>
+          </tr>
           <tr class="projectRow">
             <th>DCFMS</th>
             <td></td>
@@ -112,10 +144,10 @@
           </tr>
           <tr class="activityRow">
             <th>DCF-123 Prepare login screen wireframes</th>
+            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable=""></td>
             <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="">3</td>
             <td class="align-middle text-center" ondblclick="openDetailsModal()" style="background: #c5ffae;"
               contenteditable="">4</td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="">3</td>
             <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable=""></td>
             <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable=""></td>
             <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable=""></td>
@@ -126,11 +158,11 @@
             <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable=""></td>
             <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable=""></td>
             <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable=""></td>
+            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable=""></td>
             <td class="align-middle text-center popover-dismiss" ondblclick="openDetailsModal()" data-toggle="popover"
               title="Rejected" data-content="Reason for rejection" style="background: #ff9c9c;" contenteditable="">3
             </td>
             <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="">4</td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable=""></td>
             <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable=""></td>
           </tr>
           <tr class="projectRow">
@@ -145,11 +177,11 @@
           </tr>
           <tr class="activityRow">
             <th>GSOD-884 Partial Update function is not working in the IPradar dashboard.</th>
+            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable=""></td>
             <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="true">5</td>
             <td class="align-middle text-center popover-dismiss" ondblclick="openDetailsModal()"
               style="background: #ff9c9c;" contenteditable="true" data-toggle="popover" title="Rejected"
               data-content="Reason for rejection">4</td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="true">5</td>
             <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="true"></td>
             <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="true"></td>
             <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="true"></td>
@@ -157,6 +189,7 @@
           </tr>
           <tr class="activityRow">
             <th>GSOD-4854 IPrd search type is not listed in the Incident Timeline.</th>
+            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable=""></td>
             <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="true"></td>
             <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="true"></td>
             <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="true"></td>
@@ -164,34 +197,20 @@
               contenteditable="true">5</td>
             <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="true">3</td>
             <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="true"></td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="true"></td>
           </tr>
           <tr class="projectRow">
             <th>Total</th>
+            <th class="align-middle text-center"></th>
             <th class="align-middle text-center">8</th>
             <th class="align-middle text-center">8</th>
             <th class="align-middle text-center">8</th>
             <th class="align-middle text-center">8</th>
             <th class="align-middle text-center">7</th>
             <th class="align-middle text-center"></th>
-            <th class="align-middle text-center"></th>
           </tr>
         </tbody>
       </table>
-      <div style="position: relative; min-height: 200px;" aria-live="assertive" aria-atomic="true">
-        <div class="toast" id="saveToast" role="alert" style="position: absolute; top: 0; right: 0;">
-          <div class="toast-header">
-            <strong class="mr-auto">Saved</strong>
-            <small>just now</small>
-            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="toast-body">
-            Successfully saved
-          </div>
-        </div>
-      </div>
+      <div class="mt-2" id='calendar'></div>
     </div>
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog">
@@ -221,7 +240,90 @@
         </div>
       </div>
     </div>
-
+    <div class="modal fade" id="exampleModal3" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Leave entry</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="exampleInputEmail1" class="form-label">Type</label>
+              <select name="projectSelect" id="projectSelect" class="form-control">
+                <option value="">Annual leave</option>
+                <option value="">Sick leave</option>
+                <option value="">Public holiday</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="exampleInputEmail1" class="form-label">Time spent</label>
+              <input type="number" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
+              <div id="timeHelp" class="form-text">Time spent in hours 3 / 3.5</div>
+            </div>
+            <div class="mb-3">
+              <label for="exampleInputPassword1" class="form-label">Details</label>
+              <textarea class="form-control" cols="30" rows="5"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="exampleModal2" tabindex="-1" aria-labelledby="exampleModalLabel2" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Detailed entry</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="exampleInputEmail1" class="form-label">Project</label>
+              <select name="projectSelect" id="projectSelect" class="form-control">
+                <option value="">GMOne</option>
+                <option value="">DCFMS</option>
+                <option value="">Leave</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="exampleInputEmail1" class="form-label">Ticket</label>
+              <select name="TicketSelect" id="TicketSelect" class="form-control">
+                <option value="">GSOD-4854 IPrd search type is not listed in the Incident Timeline.</option>
+                <option value="">GSOD-884 Partial Update function is not working in the IPradar dashboard. </option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <div class="row">
+                <div class="col">
+                  <label for="exampleInputEmail1" class="form-label">From Time</label>
+                  <input type="time" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
+                </div>
+                <div class="col">
+                  <label for="exampleInputEmail1" class="form-label">To Time</label>
+                  <input type="time" class="form-control" id="exampleInputEmail2" aria-describedby="timeHelp">
+                </div>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="exampleInputPassword1" class="form-label">Details</label>
+              <textarea class="form-control" cols="30" rows="5"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
 
   <footer class="footer mt-auto py-3 bg-light">
@@ -232,9 +334,13 @@
 
 
   <script src="assets/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.0.1/main.min.js"></script>
   <script>
     function openDetailsModal() {
       new bootstrap.Modal(document.getElementById('exampleModal'), {}).show();
+    }
+    function openLeaveModal() {
+      new bootstrap.Modal(document.getElementById('exampleModal3'), {}).show();
     }
     function save() {
       new bootstrap.Toast(document.getElementById('saveToast'), {}).show()
@@ -242,6 +348,70 @@
     new bootstrap.Popover(document.querySelector('.popover-dismiss'), {
       trigger: 'hover'
     })
+
+    document.addEventListener('DOMContentLoaded', function () {
+      var calendarEl = document.getElementById('calendar');
+      var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'timeGridWeek',
+        allDaySlot: false,
+        selectable: true,
+        select: function (info) {
+          //alert('selected ' + info.startStr + ' to ' + info.endStr);
+          new bootstrap.Modal(document.getElementById('exampleModal2'), {}).show();
+        },
+        eventClick: function (calEvent, jsEvent, view) {
+          //alert('Click event: ' + calEvent.title);
+          new bootstrap.Modal(document.getElementById('exampleModal2'), {}).show();
+        },
+        events: [
+          {
+            id: 1,
+            title: 'DCF-184 Prepare SIT test cases for login',
+            start: '2020-06-27T09:00:00',
+            end: '2020-06-27T12:00:00',
+            color: "#eff5f9",
+            textColor: "#1a4862",
+            durationEditable: false,
+            className: "free",
+            additionalInfo: "A great event"
+          },
+          {
+            id: 2,
+            title: 'GSOD-4854 IPrd search type is not listed in the Incident Timeline. ',
+            start: '2020-06-27T13:00:00',
+            end: '2020-06-27T16:00:00',
+            color: "#eff5f9",
+            textColor: "#1a4862",
+            durationEditable: false,
+            className: "rejected",
+            additionalInfo: ""
+          },
+          {
+            id: 3,
+            title: 'DCF-123 Prepare login screen wireframes',
+            start: '2020-06-26T14:00:00',
+            end: '2020-06-26T18:00:00',
+            color: "#00eac3",
+            textColor: "#ffffff",
+            durationEditable: false,
+            className: "approved",
+            additionalInfo: ""
+          },
+          {
+            id: 4,
+            title: 'Sick Leave',
+            start: '2020-06-24T09:00:00',
+            end: '2020-06-24T18:00:00',
+            color: "#eff5f9",
+            textColor: "#1a4862",
+            durationEditable: false,
+            className: "free",
+            additionalInfo: ""
+          }
+        ]
+      });
+      // calendar.render();
+    });
   </script>
 
 </body>

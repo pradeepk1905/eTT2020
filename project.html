@@ -117,7 +117,7 @@
       font-size: 13px;
       align-self: center;
       font-weight: bold;
-      padding: 20px 0;
+      padding: 5px 0;
     }
 
     .gantt__row-first {
@@ -199,7 +199,7 @@
               <a class="nav-link" href="management.html">Management</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Report</a>
+              <a class="nav-link" href="report.html" tabindex="-1" aria-disabled="true">Report</a>
             </li>
           </ul>
           <form class="d-flex">
@@ -275,18 +275,29 @@
               </ul>
             </div>
           </div>
-          <div class="row mt-4">
+          <div class="row mt-5">
             <div class="row">
               <div class="col">
+                <h3>Task planner</h3>
                 <h4>
                   Week :
                   <small class="text-muted">21 - 27 June 2020</small>
                 </h4>
               </div>
               <div class="col text-right">
-                <div class="btn-group" role="group" aria-label="Basic example">
-                  <button type="button" class="btn btn-secondary">
-                    <</button> <button type="button" class="btn btn-secondary">>
+                <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+                  <div class="btn-group" role="group">
+                    <button id="btnGroupDrop1" type="button" class="btn btn-outline-secondary dropdown-toggle"
+                      data-toggle="dropdown" aria-expanded="false">
+                      This week
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                      <li><a class="dropdown-item" href="#">Last week</a></li>
+                      <li><a class="dropdown-item" href="#">Next week</a></li>
+                    </ul>
+                  </div>
+                  <button type="button" class="btn btn-outline-secondary">
+                    <</button> <button type="button" class="btn btn-outline-secondary">>
                   </button>
                 </div>
               </div>
@@ -628,9 +639,6 @@
     function save() {
       new bootstrap.Toast(document.getElementById('saveToast'), {}).show()
     }
-    new bootstrap.Popover(document.querySelector('.popover-dismiss'), {
-      trigger: 'hover'
-    })
   </script>
 
 </body>

@@ -39,8 +39,8 @@
 
   <!-- Custom styles for this template -->
   <link href="styles.css" rel="stylesheet">
-  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.0.1/main.min.css">
-  <link href="calendar.css" rel="stylesheet"> -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.0.1/main.min.css">
+  <link href="calendar.css" rel="stylesheet">
 </head>
 
 <body class="d-flex flex-column h-100">
@@ -63,7 +63,7 @@
               <a class="nav-link" href="management.html">Management</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="report.html" tabindex="-1" aria-disabled="true">Report</a>
+              <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Report</a>
             </li>
           </ul>
           <form class="d-flex">
@@ -82,142 +82,10 @@
           <h1>Timesheet</h1>
         </div>
         <div class="col text-right">
-          <a class="btn btn-outline-secondary" href="calendar.html">calendar view</a>
+          <a class="btn btn-outline-secondary" href="index.html">table view</a>
         </div>
       </div>
-      <div class="mt-4 row">
-        <div class="col">
-          <h4>
-            Week :
-            <small class="text-muted">28 June - 5 July 2020</small>
-          </h4>
-        </div>
-        <div class="col text-right">
-          <div class="btn-group" role="group" aria-label="Basic example">
-            <button type="button" class="btn btn-secondary">
-              <</button> <button type="button" class="btn btn-secondary">>
-            </button>
-            <button class="btn btn-primary btn-sm" onclick="save()">Save</button>
-          </div>
-        </div>
-      </div>
-      <div style="position: relative;" aria-live="assertive" aria-atomic="true">
-        <div class="toast" id="saveToast" role="alert" style="position: absolute; top: 0; right: 0;">
-          <div class="toast-header">
-            <strong class="mr-auto">Saved</strong>
-            <small>just now</small>
-            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="toast-body">
-            Successfully saved
-          </div>
-        </div>
-      </div>
-      <table class="table table-bordered">
-        <thead>
-          <tr style="    background: #1d47a9;color: white;">
-            <th class="align-middle" scope="col">Project / Activity</th>
-            <th class="align-middle text-center" scope="col">Sun<br>28/06</th>
-            <th class="align-middle text-center" scope="col">Mon<br>29/06</th>
-            <th class="align-middle text-center" scope="col">Tue<br>30/06</th>
-            <th class="align-middle text-center" scope="col">Wed<br>01/07</th>
-            <th class="align-middle text-center" scope="col">Thu<br>02/07</th>
-            <th class="align-middle text-center" scope="col">Fri<br>03/07</th>
-            <th class="align-middle text-center" scope="col">Sat<br>04/07</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="projectRow" style="background: #9db7f5;">
-            <th>Leave</th>
-            <td class="align-middle text-center" onclick="openLeaveModal()"></td>
-            <td class="align-middle text-center" onclick="openLeaveModal()"></td>
-            <td class="align-middle text-center" onclick="openLeaveModal()"></td>
-            <td class=" align-middle text-center" onclick="openLeaveModal()" style="background: #c5ffae;">8:00</td>
-            <td class="align-middle text-center" onclick="openLeaveModal()"></td>
-            <td class="align-middle text-center" onclick="openLeaveModal()"></td>
-            <td class="align-middle text-center" onclick="openLeaveModal()"></td>
-          </tr>
-          <tr class="projectRow">
-            <th>DCFMS</th>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-          </tr>
-          <tr class="activityRow">
-            <th>DCF-123 Prepare login screen wireframes</th>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable=""></td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="">3:00</td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" style="background: #c5ffae;"
-              contenteditable="">4:00</td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable=""></td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable=""></td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable=""></td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable=""></td>
-          </tr>
-          <tr class="activityRow">
-            <th>DCF-184 Prepare SIT test cases for login</th>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable=""></td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable=""></td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable=""></td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable=""></td>
-            <td class="align-middle text-center popover-dismiss" ondblclick="openDetailsModal()" data-toggle="popover"
-              title="Rejected" data-content="Reason for rejection" style="background: #ff9c9c;" contenteditable="">3:00
-            </td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="">4:00</td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable=""></td>
-          </tr>
-          <tr class="projectRow">
-            <th>GMOne</th>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-          </tr>
-          <tr class="activityRow">
-            <th>GSOD-884 Partial Update function is not working in the IPradar dashboard.</th>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable=""></td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="true">5:00</td>
-            <td class="align-middle text-center popover-dismiss" ondblclick="openDetailsModal()"
-              style="background: #ff9c9c;" contenteditable="true" data-toggle="popover" title="Rejected"
-              data-content="Reason for rejection">4:00</td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="true"></td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="true"></td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="true"></td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="true"></td>
-          </tr>
-          <tr class="activityRow">
-            <th>GSOD-4854 IPrd search type is not listed in the Incident Timeline.</th>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable=""></td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="true"></td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="true"></td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="true"></td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" style="background: #c5ffae;"
-              contenteditable="true">5:00</td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="true">3:00</td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="true"></td>
-          </tr>
-          <tr class="projectRow">
-            <th>Total</th>
-            <th class="align-middle text-center"></th>
-            <th class="align-middle text-center">8:00</th>
-            <th class="align-middle text-center">8:00</th>
-            <th class="align-middle text-center">8:00</th>
-            <th class="align-middle text-center">8:00</th>
-            <th class="align-middle text-center">7:00</th>
-            <th class="align-middle text-center"></th>
-          </tr>
-        </tbody>
-      </table>
-      <div class="mt-2" id='calendar'></div>
+      <div class="mt-2" id="calendar"></div>
     </div>
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog">
@@ -349,13 +217,6 @@
     function openLeaveModal() {
       new bootstrap.Modal(document.getElementById('exampleModal3'), {}).show();
     }
-    function save() {
-      new bootstrap.Toast(document.getElementById('saveToast'), {}).show()
-    }
-    new bootstrap.Popover(document.querySelector('.popover-dismiss'), {
-      trigger: 'hover'
-    })
-
     document.addEventListener('DOMContentLoaded', function () {
       var calendarEl = document.getElementById('calendar');
       var calendar = new FullCalendar.Calendar(calendarEl, {
@@ -374,8 +235,8 @@
           {
             id: 1,
             title: 'DCF-184 Prepare SIT test cases for login',
-            start: '2020-06-27T09:00:00',
-            end: '2020-06-27T12:00:00',
+            start: '2020-06-29T09:00:00',
+            end: '2020-06-29T12:00:00',
             color: "#eff5f9",
             textColor: "#1a4862",
             durationEditable: false,
@@ -385,8 +246,8 @@
           {
             id: 2,
             title: 'GSOD-4854 IPrd search type is not listed in the Incident Timeline. ',
-            start: '2020-06-27T13:00:00',
-            end: '2020-06-27T16:00:00',
+            start: '2020-06-29T13:00:00',
+            end: '2020-06-29T16:00:00',
             color: "#eff5f9",
             textColor: "#1a4862",
             durationEditable: false,
@@ -396,8 +257,8 @@
           {
             id: 3,
             title: 'DCF-123 Prepare login screen wireframes',
-            start: '2020-06-26T14:00:00',
-            end: '2020-06-26T18:00:00',
+            start: '2020-06-30T14:00:00',
+            end: '2020-06-30T18:00:00',
             color: "#00eac3",
             textColor: "#ffffff",
             durationEditable: false,
@@ -407,8 +268,8 @@
           {
             id: 4,
             title: 'Sick Leave',
-            start: '2020-06-24T09:00:00',
-            end: '2020-06-24T18:00:00',
+            start: '2020-07-01T09:00:00',
+            end: '2020-07-01T18:00:00',
             color: "#eff5f9",
             textColor: "#1a4862",
             durationEditable: false,
@@ -417,7 +278,7 @@
           }
         ]
       });
-      // calendar.render();
+      calendar.render();
     });
   </script>
 

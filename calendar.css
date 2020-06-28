@@ -1654,26 +1654,6 @@ h2 {
     margin-bottom: 20px;
 }
 
-.btn {
-    font-size: 15px !important;
-    text-transform: uppercase;
-    font-weight: 700;
-    letter-spacing: 2.5px;
-    font-family: 'Nunito', sans-serif;
-    box-shadow: none !important;
-    border: 0;
-    padding: 10px 20px !important;
-}
-
-.btn:focus {
-    box-shadow: none;
-}
-
-.btn.btn-primary {
-    background: #002147;
-    color: #ffffff;
-}
-
 .form-group label {
     font-weight: 600;
     letter-spacing: 0.010em;
@@ -1773,4 +1753,8 @@ a.fc-col-header-cell-cushion {
 .rejected .fc-event-main {
     background-color: #ff9c9c;
     color: black !important;
+}
+
+h2.fc-toolbar-title {
+    font-size: 1rem !important;
 }

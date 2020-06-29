@@ -1,21 +1,32 @@
 var app = new Vue({
     el: '#employee-weekly-entry',
     data: {
+        loading: true,
         weeklyDatePicker: '',
         week: '',
         mon: '',
         tue: '',
         wed: '',
-        thur: '',
+        thu: '',
         fri: '',
         sat: '',
         sun: '',
         mobileView: false,
-        showView: 'mon'
+        showView: 'mon',
+        days: [
+            "sun",
+            "mon",
+            "tue",
+            "wed",
+            "thu",
+            "fri",
+            "sat"
+        ],
+        data: {},
+        total: {}
     },
     methods: {
         dateloader: function () {
-
             var current = new Date(this.weeklyDatePicker)
             var first = current.getDate() - current.getDay();
             var last = first + 6;
@@ -38,8 +49,10 @@ var app = new Vue({
             var w = window.innerWidth;
             if (w < 768) {
                 this.mobileView = true;
+                this.showView = moment(new Date()).format("ddd").toLowerCase();
             } else if (w < 960) {
-                this.mobileView = false;
+                this.mobileView = true;
+                this.showView = moment(new Date()).format("ddd").toLowerCase();
             } else if (w < 1200) {
                 this.mobileView = false;
             } else {
@@ -48,11 +61,49 @@ var app = new Vue({
         },
         showViewFn: function (day) {
             return !this.mobileView || this.showView == day;
+        },
+        changeView: function (day) {
+            this.showView = day;
+            this.data = JSON.parse(JSON.stringify(this.data));
+        },
+        addEvent({ type, target }) {
+            this.loading = false;
+            this.data[target.dataset.day][target.dataset.key] = target.value;
+            this.calculateTotal(target.dataset.day);
+        },
+        calculateTotal: function (day) {
+            var data = JSON.parse(JSON.stringify(this.data));
+            var total = 0.0;
+            Object.keys(data[day]).forEach(function (key) {
+                total = total + parseFloat(data[day][key]);
+            });
+            var md = moment.duration(total, 'hours');
+            var s = (md._data.hours > 0) ? md._data.hours + "h " : "";
+            s = s.concat((md._data.minutes > 0) ? md._data.minutes + "m " : "");
+            this.total[day] = s;
+            this.$forceUpdate();
         }
     },
     mounted() {
+        this.days.forEach(d => {
+            this.data[d] = {
+                al: 0,
+                d123: 0,
+                g45: 0
+            };
+            this.total[d] = 0;
+        });
+        this.data.wed.al = 8;
+        this.data.fri.d123 = 4;
+        this.data.tue.d123 = 8;
+        this.data.thu.g45 = 8;
+        this.data.fri.g45 = 3;
         this.weeklyDatePicker = moment(new Date()).format("YYYY-MM-DD")
         this.dateloader()
         this.winWidth()
+        this.days.forEach(d => {
+            this.calculateTotal(d)
+        });
+        this.loading = false;
     }
 });

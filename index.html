@@ -32,7 +32,7 @@
     }
 
     .activityRow>th {
-      width: 50%;
+      width: 30%;
     }
   </style>
 
@@ -76,7 +76,7 @@
 
   <!-- Begin page content -->
   <main class="flex-shrink-0">
-    <div class="container" id="employee-weekly-entry">
+    <div class="container" id="employee-weekly-entry" v-id="!loading">
       <div class="row mt-5">
         <div class="col">
           <h1>Timesheet</h1>
@@ -86,7 +86,7 @@
         </div>
       </div>
       <div class="mt-4 row">
-        <div class="col">
+        <div class="col-sm">
           <h4>
             Week :
             <small class="text-muted">{{week}} <input type="date" class="form-control" v-on:change="dateloader()"
@@ -94,7 +94,7 @@
           </h4>
 
         </div>
-        <div class="col text-right">
+        <div class="col-sm text-right">
           <button class="btn btn-primary btn-sm" onclick="save()">Save</button>
         </div>
       </div>
@@ -112,114 +112,118 @@
           </div>
         </div>
       </div>
+      <style>
+        .cl-timesheet-input-td .cl-input-dots {
+          position: absolute;
+          right: -6px;
+        }
+      </style>
       <table class="table table-bordered">
         <thead>
-          <tr style=" background: rgb(66, 56, 157);color: white;">
+          <tr style=" background: rgb(66, 56, 157);color: white;" v-show="!mobileView">
+            <th class="align-middle" scope="col">Project / Activity</th>
+            <th class="align-middle text-center c-sun" scope="col">
+              Sun<br>{{sun}}</th>
+            <th class="align-middle text-center c-mon" scope="col">
+              Mon<br>{{mon}}</th>
+            <th class="align-middle text-center c-tue" scope="col">
+              Tue<br>{{tue}}</th>
+            <th class="align-middle text-center c-wed" scope="col">
+              Wed<br>{{wed}}</th>
+            <th class="align-middle text-center c-thu" scope="col">
+              Thu<br>{{thu}}</th>
+            <th class="align-middle text-center c-fri" scope="col">
+              Fri<br>{{fri}}</th>
+            <th class="align-middle text-center c-sat" scope="col">
+              Sat<br>{{sat}}</th>
+          </tr>
+          <tr style=" background: rgb(66, 56, 157);color: white;" v-show="mobileView">
             <th class="align-middle" scope="col">Project / Activity</th>
             <th class="align-middle text-center c-sun" v-show="showViewFn('sun')" scope="col">
-              Sun<br>{{sun}}</th>
+              <div class="btn-group btn-block" role="group" aria-label="Basic example">
+                <button disabled type="button" class="btn btn-primary">
+                  <</button> <button disabled type="button" class="btn btn-primary">Sun<br>{{sun}}
+                </button>
+                <button type="button" class="btn btn-primary" v-on:click="changeView('mon')">></button>
+              </div>
+            </th>
             <th class="align-middle text-center c-mon" v-show="showViewFn('mon')" scope="col">
-              Mon<br>{{mon}}</th>
+              <div class="btn-group btn-block" role="group" aria-label="Basic example">
+                <button type="button" class="btn btn-primary" v-on:click="changeView('sun')">
+                  <</button> <button disabled type="button" class="btn btn-primary">Mon<br>{{mon}}
+                </button>
+                <button type="button" class="btn btn-primary" v-on:click="changeView('tue')">></button>
+              </div>
+            </th>
             <th class="align-middle text-center c-tue" v-show="showViewFn('tue')" scope="col">
-              Tue<br>{{tue}}</th>
+              <div class="btn-group btn-block" role="group" aria-label="Basic example">
+                <button type="button" class="btn btn-primary" v-on:click="changeView('mon')">
+                  <</button> <button disabled type="button" class="btn btn-primary">Tue<br>{{tue}}
+                </button>
+                <button type="button" class="btn btn-primary" v-on:click="changeView('wed')">></button>
+              </div>
+            </th>
             <th class="align-middle text-center c-wed" v-show="showViewFn('wed')" scope="col">
-              Wed<br>{{wed}}</th>
+              <div class="btn-group btn-block" role="group" aria-label="Basic example">
+                <button type="button" class="btn btn-primary" v-on:click="changeView('tue')">
+                  <</button> <button disabled type="button" class="btn btn-primary">Wed<br>{{wed}}
+                </button>
+                <button type="button" class="btn btn-primary" v-on:click="changeView('thu')">></button>
+              </div>
+            </th>
             <th class="align-middle text-center c-thu" v-show="showViewFn('thu')" scope="col">
-              Thu<br>{{thu}}</th>
+              <div class="btn-group btn-block" role="group" aria-label="Basic example">
+                <button type="button" class="btn btn-primary" v-on:click="changeView('wed')">
+                  <</button> <button disabled type="button" class="btn btn-primary">Thu<br>{{thu}}
+                </button>
+                <button type="button" class="btn btn-primary" v-on:click="changeView('fri')">></button>
+              </div>
+            </th>
             <th class="align-middle text-center c-fri" v-show="showViewFn('fri')" scope="col">
-              Fri<br>{{fri}}</th>
+              <div class="btn-group btn-block" role="group" aria-label="Basic example">
+                <button type="button" class="btn btn-primary" v-on:click="changeView('thu')">
+                  <</button> <button disabled type="button" class="btn btn-primary">Fri<br>{{fri}}
+                </button>
+                <button type="button" class="btn btn-primary" v-on:click="changeView('sat')">></button>
+              </div>
+            </th>
             <th class="align-middle text-center c-sat" v-show="showViewFn('sat')" scope="col">
-              Sat<br>{{sat}}</th>
+              <div class="btn-group btn-block" role="group" aria-label="Basic example">
+                <button type="button" class="btn btn-primary" v-on:click="changeView('fri')">
+                  <</button> <button disabled type="button" class="btn btn-primary">Sat<br>{{sat}}
+                </button>
+                <button type="button" class="btn btn-primary" disabled>></button>
+              </div>
+            </th>
           </tr>
         </thead>
         <tbody>
           <tr class="activityRow">
             <th>Leave: Annual Leave</th>
-            <td class="align-middle text-center c-sun" v-show="showViewFn('sun')" ondblclick="openDetailsModal()"
-              contenteditable=""></td>
-            <td class="align-middle text-center c-mon" v-show="showViewFn('mon')" ondblclick="openDetailsModal()"
-              contenteditable=""></td>
-            <td class="align-middle text-center c-tue" v-show="showViewFn('tue')" ondblclick="openDetailsModal()"
-              contenteditable=""></td>
-            <td class=" align-middle text-center c-wed" v-show="showViewFn('wed')" ondblclick="openDetailsModal()"
-              contenteditable="" style="background: #c5ffae;">8:00</td>
-            <td class="align-middle text-center c-thu" v-show="showViewFn('thu')" ondblclick="openDetailsModal()"
-              contenteditable=""></td>
-            <td class="align-middle text-center c-fri" v-show="showViewFn('fri')" ondblclick="openDetailsModal()"
-              contenteditable=""></td>
-            <td class="align-middle text-center c-sat" v-show="showViewFn('sat')" ondblclick="openDetailsModal()"
-              contenteditable=""></td>
+            <td v-for="(value, name, index) in days" v-show="showViewFn(value)">
+              <input type="text" autocomplete="off" class="form-control timeInput text-center" :data-day="value"
+                data-key="al" @input="addEvent" @change="addEvent" :value="data[value].al">
+              <img style="height: 36px;" onclick="openDetailsModal()"
+                src="https://clockify.me/assets/images/ui-icons/input-dots-menu.svg">
+            </td>
           </tr>
           <tr class="activityRow">
             <th>DCFMS: DCF-123 Prepare login screen wireframes</th>
-            <td class="align-middle text-center c-sun" v-show="showViewFn('sun')" ondblclick="openDetailsModal()"
-              contenteditable=""></td>
-            <td class="align-middle text-center c-mon" v-show="showViewFn('mon')" ondblclick="openDetailsModal()"
-              contenteditable="">3:00</td>
-            <td class="align-middle text-center c-tue" v-show="showViewFn('tue')" ondblclick="openDetailsModal()"
-              style="background: #c5ffae;" contenteditable="">4:00</td>
-            <td class="align-middle text-center c-wed" v-show="showViewFn('wed')" ondblclick="openDetailsModal()"
-              contenteditable=""></td>
-            <td class="align-middle text-center c-thu" v-show="showViewFn('thu')" ondblclick="openDetailsModal()"
-              contenteditable=""></td>
-            <td class="align-middle text-center c-fri" v-show="showViewFn('fri')" ondblclick="openDetailsModal()"
-              contenteditable=""></td>
-            <td class="align-middle text-center c-sat" v-show="showViewFn('sat')" ondblclick="openDetailsModal()"
-              contenteditable=""></td>
-          </tr>
-          <tr class="activityRow">
-            <th>DCFMS: DCF-184 Prepare SIT test cases for login</th>
-            <td class="align-middle text-center c-sun" v-show="showViewFn('sun')" ondblclick="openDetailsModal()"
-              contenteditable=""></td>
-            <td class="align-middle text-center c-mon" v-show="showViewFn('mon')" ondblclick="openDetailsModal()"
-              contenteditable=""></td>
-            <td class="align-middle text-center c-tue" v-show="showViewFn('tue')" ondblclick="openDetailsModal()"
-              contenteditable=""></td>
-            <td class="align-middle text-center c-wed" v-show="showViewFn('wed')" ondblclick="openDetailsModal()"
-              contenteditable=""></td>
-            <td class="popover-dismiss align-middle text-center c-thu" v-show="showViewFn('thu')"
-              ondblclick="openDetailsModal()" data-toggle="popover" title="Rejected" data-content="Reason for rejection"
-              style="background: #ff9c9c;" contenteditable="">3:00
+            <td v-for="(value, name, index) in days" v-show="showViewFn(value)">
+              <input type="text" autocomplete="off" class="form-control timeInput text-center" @input="addEvent"
+                @change="addEvent" :value="data[value].d123" :data-day="value" data-key="d123">
+              <img style="height: 36px;" onclick="openDetailsModal()"
+                src="https://clockify.me/assets/images/ui-icons/input-dots-menu.svg">
             </td>
-            <td class="align-middle text-center c-fri" v-show="showViewFn('fri')" ondblclick="openDetailsModal()"
-              contenteditable="">4:00</td>
-            <td class="align-middle text-center c-sat" v-show="showViewFn('sat')" ondblclick="openDetailsModal()"
-              contenteditable=""></td>
-          </tr>
-          <tr class="activityRow">
-            <th>GMOne: GSOD-884 Partial Update function is not working in the IPradar dashboard.</th>
-            <td class="align-middle text-center c-sun" v-show="showViewFn('sun')" ondblclick="openDetailsModal()"
-              contenteditable=""></td>
-            <td class="align-middle text-center c-mon" v-show="showViewFn('mon')" ondblclick="openDetailsModal()"
-              contenteditable="true">5:00</td>
-            <td class="popover-dismiss align-middle text-center c-tue" v-show=" showViewFn('tue')"
-              ondblclick=" openDetailsModal()" style="background: #ff9c9c;" contenteditable="true" data-toggle="popover"
-              title="Rejected" data-content="Reason for rejection">4:00</td>
-            <td class="align-middle text-center c-wed" v-show="showViewFn('wed')" ondblclick="openDetailsModal()"
-              contenteditable="true"></td>
-            <td class="align-middle text-center c-thu" v-show="showViewFn('thu')" ondblclick="openDetailsModal()"
-              contenteditable="true"></td>
-            <td class="align-middle text-center c-fri" v-show="showViewFn('fri')" ondblclick="openDetailsModal()"
-              contenteditable="true"></td>
-            <td class="align-middle text-center c-sat" v-show="showViewFn('sat')" ondblclick="openDetailsModal()"
-              contenteditable="true"></td>
           </tr>
           <tr class="activityRow">
             <th>GMOne: GSOD-4854 IPrd search type is not listed in the Incident Timeline.</th>
-            <td class="align-middle text-center c-sun" v-show="showViewFn('sun')" ondblclick="openDetailsModal()"
-              contenteditable=""></td>
-            <td class="align-middle text-center c-mon" v-show="showViewFn('mon')" ondblclick="openDetailsModal()"
-              contenteditable="true"></td>
-            <td class="align-middle text-center c-tue" v-show="showViewFn('tue')" ondblclick="openDetailsModal()"
-              contenteditable="true"></td>
-            <td class="align-middle text-center c-wed" v-show="showViewFn('wed')" ondblclick="openDetailsModal()"
-              contenteditable="true"></td>
-            <td class="align-middle text-center c-thu" v-show="showViewFn('thu')" ondblclick="openDetailsModal()"
-              style="background: #c5ffae;" contenteditable="true">5:00</td>
-            <td class="align-middle text-center c-fri" v-show="showViewFn('fri')" ondblclick="openDetailsModal()"
-              contenteditable="true">3:00</td>
-            <td class="align-middle text-center c-sat" v-show="showViewFn('sat')" ondblclick="openDetailsModal()"
-              contenteditable="true"></td>
+            <td v-for="(value, name, index) in days" v-show="showViewFn(value)">
+              <input type="text" autocomplete="off" class="form-control timeInput text-center" @input="addEvent"
+                @change="addEvent" :value="data[value].g45" :data-day="value" data-key="g45">
+              <img style="height: 36px;" onclick="openDetailsModal()"
+                src="https://clockify.me/assets/images/ui-icons/input-dots-menu.svg">
+            </td>
           </tr>
           <tr class="activityRow">
             <th><a href="#" class="nav-link p-0">+ Add Project / Task</a></th>
@@ -233,13 +237,9 @@
           </tr>
           <tr class="projectRow">
             <th>Total</th>
-            <th class="align-middle text-center c-sun" v-show="showViewFn('sun')"></th>
-            <th class="align-middle text-center c-mon" v-show="showViewFn('mon')">8:00</th>
-            <th class="align-middle text-center c-tue" v-show="showViewFn('tue')">8:00</th>
-            <th class="align-middle text-center c-wed" v-show="showViewFn('wed')">8:00</th>
-            <th class="align-middle text-center c-thu" v-show="showViewFn('thu')">8:00</th>
-            <th class="align-middle text-center c-fri" v-show="showViewFn('fri')">7:00</th>
-            <th class="align-middle text-center c-sat" v-show="showViewFn('sat')"></th>
+            <th class="align-middle text-center" v-for="(value, name, index) in days" v-show="showViewFn(value)">
+              {{total[value]}}
+            </th>
           </tr>
         </tbody>
       </table>
@@ -340,10 +340,6 @@
     function save() {
       new bootstrap.Toast(document.getElementById('saveToast'), {}).show()
     }
-    new bootstrap.Popover(document.querySelector('.popover-dismiss'), {
-      trigger: 'hover'
-    })
-
     document.addEventListener('DOMContentLoaded', function () {
       var calendarEl = document.getElementById('calendar');
       var calendar = new FullCalendar.Calendar(calendarEl, {

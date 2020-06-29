@@ -76,7 +76,7 @@
 
   <!-- Begin page content -->
   <main class="flex-shrink-0">
-    <div class="container">
+    <div class="container" id="employee-weekly-entry">
       <div class="row mt-5">
         <div class="col">
           <h1>Timesheet</h1>
@@ -89,16 +89,13 @@
         <div class="col">
           <h4>
             Week :
-            <small class="text-muted">28 June - 5 July 2020</small>
+            <small class="text-muted">{{week}} <input type="date" class="form-control" v-on:change="dateloader()"
+                v-model="weeklyDatePicker" style="width: 70px;display: inline;border: none;" /></small>
           </h4>
+
         </div>
         <div class="col text-right">
-          <div class="btn-group" role="group" aria-label="Basic example">
-            <button type="button" class="btn btn-secondary">
-              <</button> <button type="button" class="btn btn-secondary">>
-            </button>
-            <button class="btn btn-primary btn-sm" onclick="save()">Save</button>
-          </div>
+          <button class="btn btn-primary btn-sm" onclick="save()">Save</button>
         </div>
       </div>
       <div style="position: relative;" aria-live="assertive" aria-atomic="true">
@@ -117,103 +114,132 @@
       </div>
       <table class="table table-bordered">
         <thead>
-          <tr style="    background: #1d47a9;color: white;">
+          <tr style=" background: rgb(66, 56, 157);color: white;">
             <th class="align-middle" scope="col">Project / Activity</th>
-            <th class="align-middle text-center" scope="col">Sun<br>28/06</th>
-            <th class="align-middle text-center" scope="col">Mon<br>29/06</th>
-            <th class="align-middle text-center" scope="col">Tue<br>30/06</th>
-            <th class="align-middle text-center" scope="col">Wed<br>01/07</th>
-            <th class="align-middle text-center" scope="col">Thu<br>02/07</th>
-            <th class="align-middle text-center" scope="col">Fri<br>03/07</th>
-            <th class="align-middle text-center" scope="col">Sat<br>04/07</th>
+            <th class="align-middle text-center c-sun" v-show="showViewFn('sun')" scope="col">
+              Sun<br>{{sun}}</th>
+            <th class="align-middle text-center c-mon" v-show="showViewFn('mon')" scope="col">
+              Mon<br>{{mon}}</th>
+            <th class="align-middle text-center c-tue" v-show="showViewFn('tue')" scope="col">
+              Tue<br>{{tue}}</th>
+            <th class="align-middle text-center c-wed" v-show="showViewFn('wed')" scope="col">
+              Wed<br>{{wed}}</th>
+            <th class="align-middle text-center c-thu" v-show="showViewFn('thu')" scope="col">
+              Thu<br>{{thu}}</th>
+            <th class="align-middle text-center c-fri" v-show="showViewFn('fri')" scope="col">
+              Fri<br>{{fri}}</th>
+            <th class="align-middle text-center c-sat" v-show="showViewFn('sat')" scope="col">
+              Sat<br>{{sat}}</th>
           </tr>
         </thead>
         <tbody>
-          <tr class="projectRow" style="background: #9db7f5;">
-            <th>Leave</th>
-            <td class="align-middle text-center" onclick="openLeaveModal()"></td>
-            <td class="align-middle text-center" onclick="openLeaveModal()"></td>
-            <td class="align-middle text-center" onclick="openLeaveModal()"></td>
-            <td class=" align-middle text-center" onclick="openLeaveModal()" style="background: #c5ffae;">8:00</td>
-            <td class="align-middle text-center" onclick="openLeaveModal()"></td>
-            <td class="align-middle text-center" onclick="openLeaveModal()"></td>
-            <td class="align-middle text-center" onclick="openLeaveModal()"></td>
-          </tr>
-          <tr class="projectRow">
-            <th>DCFMS</th>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
+          <tr class="activityRow">
+            <th>Leave: Annual Leave</th>
+            <td class="align-middle text-center c-sun" v-show="showViewFn('sun')" ondblclick="openDetailsModal()"
+              contenteditable=""></td>
+            <td class="align-middle text-center c-mon" v-show="showViewFn('mon')" ondblclick="openDetailsModal()"
+              contenteditable=""></td>
+            <td class="align-middle text-center c-tue" v-show="showViewFn('tue')" ondblclick="openDetailsModal()"
+              contenteditable=""></td>
+            <td class=" align-middle text-center c-wed" v-show="showViewFn('wed')" ondblclick="openDetailsModal()"
+              contenteditable="" style="background: #c5ffae;">8:00</td>
+            <td class="align-middle text-center c-thu" v-show="showViewFn('thu')" ondblclick="openDetailsModal()"
+              contenteditable=""></td>
+            <td class="align-middle text-center c-fri" v-show="showViewFn('fri')" ondblclick="openDetailsModal()"
+              contenteditable=""></td>
+            <td class="align-middle text-center c-sat" v-show="showViewFn('sat')" ondblclick="openDetailsModal()"
+              contenteditable=""></td>
           </tr>
           <tr class="activityRow">
-            <th>DCF-123 Prepare login screen wireframes</th>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable=""></td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="">3:00</td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" style="background: #c5ffae;"
-              contenteditable="">4:00</td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable=""></td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable=""></td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable=""></td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable=""></td>
+            <th>DCFMS: DCF-123 Prepare login screen wireframes</th>
+            <td class="align-middle text-center c-sun" v-show="showViewFn('sun')" ondblclick="openDetailsModal()"
+              contenteditable=""></td>
+            <td class="align-middle text-center c-mon" v-show="showViewFn('mon')" ondblclick="openDetailsModal()"
+              contenteditable="">3:00</td>
+            <td class="align-middle text-center c-tue" v-show="showViewFn('tue')" ondblclick="openDetailsModal()"
+              style="background: #c5ffae;" contenteditable="">4:00</td>
+            <td class="align-middle text-center c-wed" v-show="showViewFn('wed')" ondblclick="openDetailsModal()"
+              contenteditable=""></td>
+            <td class="align-middle text-center c-thu" v-show="showViewFn('thu')" ondblclick="openDetailsModal()"
+              contenteditable=""></td>
+            <td class="align-middle text-center c-fri" v-show="showViewFn('fri')" ondblclick="openDetailsModal()"
+              contenteditable=""></td>
+            <td class="align-middle text-center c-sat" v-show="showViewFn('sat')" ondblclick="openDetailsModal()"
+              contenteditable=""></td>
           </tr>
           <tr class="activityRow">
-            <th>DCF-184 Prepare SIT test cases for login</th>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable=""></td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable=""></td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable=""></td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable=""></td>
-            <td class="align-middle text-center popover-dismiss" ondblclick="openDetailsModal()" data-toggle="popover"
-              title="Rejected" data-content="Reason for rejection" style="background: #ff9c9c;" contenteditable="">3:00
+            <th>DCFMS: DCF-184 Prepare SIT test cases for login</th>
+            <td class="align-middle text-center c-sun" v-show="showViewFn('sun')" ondblclick="openDetailsModal()"
+              contenteditable=""></td>
+            <td class="align-middle text-center c-mon" v-show="showViewFn('mon')" ondblclick="openDetailsModal()"
+              contenteditable=""></td>
+            <td class="align-middle text-center c-tue" v-show="showViewFn('tue')" ondblclick="openDetailsModal()"
+              contenteditable=""></td>
+            <td class="align-middle text-center c-wed" v-show="showViewFn('wed')" ondblclick="openDetailsModal()"
+              contenteditable=""></td>
+            <td class="popover-dismiss align-middle text-center c-thu" v-show="showViewFn('thu')"
+              ondblclick="openDetailsModal()" data-toggle="popover" title="Rejected" data-content="Reason for rejection"
+              style="background: #ff9c9c;" contenteditable="">3:00
             </td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="">4:00</td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable=""></td>
-          </tr>
-          <tr class="projectRow">
-            <th>GMOne</th>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
+            <td class="align-middle text-center c-fri" v-show="showViewFn('fri')" ondblclick="openDetailsModal()"
+              contenteditable="">4:00</td>
+            <td class="align-middle text-center c-sat" v-show="showViewFn('sat')" ondblclick="openDetailsModal()"
+              contenteditable=""></td>
           </tr>
           <tr class="activityRow">
-            <th>GSOD-884 Partial Update function is not working in the IPradar dashboard.</th>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable=""></td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="true">5:00</td>
-            <td class="align-middle text-center popover-dismiss" ondblclick="openDetailsModal()"
-              style="background: #ff9c9c;" contenteditable="true" data-toggle="popover" title="Rejected"
-              data-content="Reason for rejection">4:00</td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="true"></td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="true"></td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="true"></td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="true"></td>
-          </tr>
-          <tr class="activityRow">
-            <th>GSOD-4854 IPrd search type is not listed in the Incident Timeline.</th>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable=""></td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="true"></td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="true"></td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="true"></td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" style="background: #c5ffae;"
+            <th>GMOne: GSOD-884 Partial Update function is not working in the IPradar dashboard.</th>
+            <td class="align-middle text-center c-sun" v-show="showViewFn('sun')" ondblclick="openDetailsModal()"
+              contenteditable=""></td>
+            <td class="align-middle text-center c-mon" v-show="showViewFn('mon')" ondblclick="openDetailsModal()"
               contenteditable="true">5:00</td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="true">3:00</td>
-            <td class="align-middle text-center" ondblclick="openDetailsModal()" contenteditable="true"></td>
+            <td class="popover-dismiss align-middle text-center c-tue" v-show=" showViewFn('tue')"
+              ondblclick=" openDetailsModal()" style="background: #ff9c9c;" contenteditable="true" data-toggle="popover"
+              title="Rejected" data-content="Reason for rejection">4:00</td>
+            <td class="align-middle text-center c-wed" v-show="showViewFn('wed')" ondblclick="openDetailsModal()"
+              contenteditable="true"></td>
+            <td class="align-middle text-center c-thu" v-show="showViewFn('thu')" ondblclick="openDetailsModal()"
+              contenteditable="true"></td>
+            <td class="align-middle text-center c-fri" v-show="showViewFn('fri')" ondblclick="openDetailsModal()"
+              contenteditable="true"></td>
+            <td class="align-middle text-center c-sat" v-show="showViewFn('sat')" ondblclick="openDetailsModal()"
+              contenteditable="true"></td>
+          </tr>
+          <tr class="activityRow">
+            <th>GMOne: GSOD-4854 IPrd search type is not listed in the Incident Timeline.</th>
+            <td class="align-middle text-center c-sun" v-show="showViewFn('sun')" ondblclick="openDetailsModal()"
+              contenteditable=""></td>
+            <td class="align-middle text-center c-mon" v-show="showViewFn('mon')" ondblclick="openDetailsModal()"
+              contenteditable="true"></td>
+            <td class="align-middle text-center c-tue" v-show="showViewFn('tue')" ondblclick="openDetailsModal()"
+              contenteditable="true"></td>
+            <td class="align-middle text-center c-wed" v-show="showViewFn('wed')" ondblclick="openDetailsModal()"
+              contenteditable="true"></td>
+            <td class="align-middle text-center c-thu" v-show="showViewFn('thu')" ondblclick="openDetailsModal()"
+              style="background: #c5ffae;" contenteditable="true">5:00</td>
+            <td class="align-middle text-center c-fri" v-show="showViewFn('fri')" ondblclick="openDetailsModal()"
+              contenteditable="true">3:00</td>
+            <td class="align-middle text-center c-sat" v-show="showViewFn('sat')" ondblclick="openDetailsModal()"
+              contenteditable="true"></td>
+          </tr>
+          <tr class="activityRow">
+            <th><a href="#" class="nav-link p-0">+ Add Project / Task</a></th>
+            <td class="c-sun" v-show="showViewFn('sun')"></td>
+            <td class="c-mon" v-show="showViewFn('mon')"></td>
+            <td class="c-tue" v-show="showViewFn('tue')"></td>
+            <td class="c-wed" v-show="showViewFn('wed')"></td>
+            <td class="c-thu" v-show="showViewFn('thu')"></td>
+            <td class="c-fri" v-show="showViewFn('fri')"></td>
+            <td class="c-sat" v-show="showViewFn('sat')"></td>
           </tr>
           <tr class="projectRow">
             <th>Total</th>
-            <th class="align-middle text-center"></th>
-            <th class="align-middle text-center">8:00</th>
-            <th class="align-middle text-center">8:00</th>
-            <th class="align-middle text-center">8:00</th>
-            <th class="align-middle text-center">8:00</th>
-            <th class="align-middle text-center">7:00</th>
-            <th class="align-middle text-center"></th>
+            <th class="align-middle text-center c-sun" v-show="showViewFn('sun')"></th>
+            <th class="align-middle text-center c-mon" v-show="showViewFn('mon')">8:00</th>
+            <th class="align-middle text-center c-tue" v-show="showViewFn('tue')">8:00</th>
+            <th class="align-middle text-center c-wed" v-show="showViewFn('wed')">8:00</th>
+            <th class="align-middle text-center c-thu" v-show="showViewFn('thu')">8:00</th>
+            <th class="align-middle text-center c-fri" v-show="showViewFn('fri')">7:00</th>
+            <th class="align-middle text-center c-sat" v-show="showViewFn('sat')"></th>
           </tr>
         </tbody>
       </table>
@@ -230,41 +256,6 @@
           </div>
           <div class="modal-body">
 
-            <div class="mb-3">
-              <label for="exampleInputEmail1" class="form-label">Time spent</label>
-              <input type="number" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
-              <div id="timeHelp" class="form-text">Time spent in hours 3 / 3.5</div>
-            </div>
-            <div class="mb-3">
-              <label for="exampleInputPassword1" class="form-label">Details</label>
-              <textarea class="form-control" cols="30" rows="5"></textarea>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save changes</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="modal fade" id="exampleModal3" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Leave entry</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <div class="mb-3">
-              <label for="exampleInputEmail1" class="form-label">Type</label>
-              <select name="projectSelect" id="projectSelect" class="form-control">
-                <option value="">Annual leave</option>
-                <option value="">Sick leave</option>
-                <option value="">Public holiday</option>
-              </select>
-            </div>
             <div class="mb-3">
               <label for="exampleInputEmail1" class="form-label">Time spent</label>
               <input type="number" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
@@ -346,9 +337,6 @@
     function openDetailsModal() {
       new bootstrap.Modal(document.getElementById('exampleModal'), {}).show();
     }
-    function openLeaveModal() {
-      new bootstrap.Modal(document.getElementById('exampleModal3'), {}).show();
-    }
     function save() {
       new bootstrap.Toast(document.getElementById('saveToast'), {}).show()
     }
@@ -420,7 +408,11 @@
       // calendar.render();
     });
   </script>
-
+  <!-- Vue js -->
+  <script src="assets/dist/js/vue.js"></script>
+  <script src="assets/dist/js/axios.min.js"></script>
+  <script src="https://momentjs.com/downloads/moment.min.js"></script>
+  <script src="index.js"></script>
 </body>
 
 </html>

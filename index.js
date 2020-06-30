@@ -94,10 +94,11 @@ var app = new Vue({
             this.total[d] = 0;
         });
         this.data.wed.al = 8;
-        this.data.fri.d123 = 4;
-        this.data.tue.d123 = 8;
+        this.data.fri.d123 = 4.5;
+        this.data.tue.d123 = 4.5;
+        this.data.tue.g45 = 3.5;
         this.data.thu.g45 = 8;
-        this.data.fri.g45 = 3;
+        this.data.fri.g45 = 2.5;
         this.weeklyDatePicker = moment(new Date()).format("YYYY-MM-DD")
         this.dateloader()
         this.winWidth()

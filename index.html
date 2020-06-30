@@ -21,18 +21,18 @@
       user-select: none;
     }
 
-    @media (min-width: 768px) {
+    @media (min-width: 960px) {
       .bd-placeholder-img-lg {
         font-size: 3.5rem;
+      }
+
+      .activityRow>th {
+        width: 30%;
       }
     }
 
     tr.projectRow {
       background: #b9c9ef;
-    }
-
-    .activityRow>th {
-      width: 30%;
     }
   </style>
 
@@ -142,57 +142,57 @@
             <th class="align-middle text-center c-sun" v-show="showViewFn('sun')" scope="col">
               <div class="btn-group btn-block" role="group" aria-label="Basic example">
                 <button disabled type="button" class="btn btn-primary">
-                  <</button> <button disabled type="button" class="btn btn-primary">Sun<br>{{sun}}
+                  &lt;</button> <button disabled type="button" class="btn btn-primary">Sun<br>{{sun}}
                 </button>
-                <button type="button" class="btn btn-primary" v-on:click="changeView('mon')">></button>
+                <button type="button" class="btn btn-primary" v-on:click="changeView('mon')">&gt;</button>
               </div>
             </th>
             <th class="align-middle text-center c-mon" v-show="showViewFn('mon')" scope="col">
               <div class="btn-group btn-block" role="group" aria-label="Basic example">
                 <button type="button" class="btn btn-primary" v-on:click="changeView('sun')">
-                  <</button> <button disabled type="button" class="btn btn-primary">Mon<br>{{mon}}
+                  &lt;</button> <button disabled type="button" class="btn btn-primary">Mon<br>{{mon}}
                 </button>
-                <button type="button" class="btn btn-primary" v-on:click="changeView('tue')">></button>
+                <button type="button" class="btn btn-primary" v-on:click="changeView('tue')">&gt;</button>
               </div>
             </th>
             <th class="align-middle text-center c-tue" v-show="showViewFn('tue')" scope="col">
               <div class="btn-group btn-block" role="group" aria-label="Basic example">
                 <button type="button" class="btn btn-primary" v-on:click="changeView('mon')">
-                  <</button> <button disabled type="button" class="btn btn-primary">Tue<br>{{tue}}
+                  &lt;</button> <button disabled type="button" class="btn btn-primary">Tue<br>{{tue}}
                 </button>
-                <button type="button" class="btn btn-primary" v-on:click="changeView('wed')">></button>
+                <button type="button" class="btn btn-primary" v-on:click="changeView('wed')">&gt;</button>
               </div>
             </th>
             <th class="align-middle text-center c-wed" v-show="showViewFn('wed')" scope="col">
               <div class="btn-group btn-block" role="group" aria-label="Basic example">
                 <button type="button" class="btn btn-primary" v-on:click="changeView('tue')">
-                  <</button> <button disabled type="button" class="btn btn-primary">Wed<br>{{wed}}
+                  &lt;</button> <button disabled type="button" class="btn btn-primary">Wed<br>{{wed}}
                 </button>
-                <button type="button" class="btn btn-primary" v-on:click="changeView('thu')">></button>
+                <button type="button" class="btn btn-primary" v-on:click="changeView('thu')">&gt;</button>
               </div>
             </th>
             <th class="align-middle text-center c-thu" v-show="showViewFn('thu')" scope="col">
               <div class="btn-group btn-block" role="group" aria-label="Basic example">
                 <button type="button" class="btn btn-primary" v-on:click="changeView('wed')">
-                  <</button> <button disabled type="button" class="btn btn-primary">Thu<br>{{thu}}
+                  &lt; </button> <button disabled type="button" class="btn btn-primary">Thu<br>{{thu}}
                 </button>
-                <button type="button" class="btn btn-primary" v-on:click="changeView('fri')">></button>
+                <button type="button" class="btn btn-primary" v-on:click="changeView('fri')">&gt;</button>
               </div>
             </th>
             <th class="align-middle text-center c-fri" v-show="showViewFn('fri')" scope="col">
               <div class="btn-group btn-block" role="group" aria-label="Basic example">
                 <button type="button" class="btn btn-primary" v-on:click="changeView('thu')">
-                  <</button> <button disabled type="button" class="btn btn-primary">Fri<br>{{fri}}
-                </button>
-                <button type="button" class="btn btn-primary" v-on:click="changeView('sat')">></button>
+                  < </button> <button disabled type="button" class="btn btn-primary">Fri<br>{{fri}}
+                    </button>
+                    <button type="button" class="btn btn-primary" v-on:click="changeView('sat')">&gt;</button>
               </div>
             </th>
             <th class="align-middle text-center c-sat" v-show="showViewFn('sat')" scope="col">
               <div class="btn-group btn-block" role="group" aria-label="Basic example">
                 <button type="button" class="btn btn-primary" v-on:click="changeView('fri')">
-                  <</button> <button disabled type="button" class="btn btn-primary">Sat<br>{{sat}}
+                  &lt;</button> <button disabled type="button" class="btn btn-primary">Sat<br>{{sat}}
                 </button>
-                <button type="button" class="btn btn-primary" disabled>></button>
+                <button type="button" class="btn btn-primary" disabled>&gt;</button>
               </div>
             </th>
           </tr>

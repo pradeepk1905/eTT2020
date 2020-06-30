@@ -36,8 +36,22 @@ th {
 }
 
 .timeInput {
-  width: 65%;
+  width: 85%;
   display: inline;
   padding: 0 !important;
-  border: 0.1px solid #d8d8d8 !important;
+  border: none;
+}
+
+.timeInput:focus{
+  border: none !important;
+  outline:none !important;
+  box-shadow:none !important;
+}
+
+.timeInput.approved {
+  background: #bdffbd;
+}
+
+.timeInput.rejected {
+  background: #ffbdbd;
 }

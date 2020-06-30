@@ -92,7 +92,6 @@
             <small class="text-muted">{{week}} <input type="date" class="form-control" v-on:change="dateloader()"
                 v-model="weeklyDatePicker" style="width: 70px;display: inline;border: none;" /></small>
           </h4>
-
         </div>
         <div class="col-sm text-right">
           <button class="btn btn-primary btn-sm" onclick="save()">Save</button>
@@ -122,20 +121,8 @@
         <thead>
           <tr style=" background: rgb(66, 56, 157);color: white;" v-show="!mobileView">
             <th class="align-middle" scope="col">Project / Activity</th>
-            <th class="align-middle text-center c-sun" scope="col">
-              Sun<br>{{sun}}</th>
-            <th class="align-middle text-center c-mon" scope="col">
-              Mon<br>{{mon}}</th>
-            <th class="align-middle text-center c-tue" scope="col">
-              Tue<br>{{tue}}</th>
-            <th class="align-middle text-center c-wed" scope="col">
-              Wed<br>{{wed}}</th>
-            <th class="align-middle text-center c-thu" scope="col">
-              Thu<br>{{thu}}</th>
-            <th class="align-middle text-center c-fri" scope="col">
-              Fri<br>{{fri}}</th>
-            <th class="align-middle text-center c-sat" scope="col">
-              Sat<br>{{sat}}</th>
+            <th class="align-middle text-center" scope="col" v-for="(value, name, index) in days">
+              {{dayEntries[value].day}}<br>{{dayEntries[value].date_f}}</th>
           </tr>
           <tr style=" background: rgb(66, 56, 157);color: white;" v-show="mobileView">
             <th class="align-middle" scope="col">Project / Activity</th>
@@ -182,9 +169,9 @@
             <th class="align-middle text-center c-fri" v-show="showViewFn('fri')" scope="col">
               <div class="btn-group btn-block" role="group" aria-label="Basic example">
                 <button type="button" class="btn btn-primary" v-on:click="changeView('thu')">
-                  < </button> <button disabled type="button" class="btn btn-primary">Fri<br>{{fri}}
-                    </button>
-                    <button type="button" class="btn btn-primary" v-on:click="changeView('sat')">&gt;</button>
+                  &lt;</button> <button disabled type="button" class="btn btn-primary">Fri<br>{{fri}}
+                </button>
+                <button type="button" class="btn btn-primary" v-on:click="changeView('sat')">&gt;</button>
               </div>
             </th>
             <th class="align-middle text-center c-sat" v-show="showViewFn('sat')" scope="col">
@@ -198,35 +185,18 @@
           </tr>
         </thead>
         <tbody>
-          <tr class="activityRow">
-            <th>Leave: Annual Leave</th>
-            <td v-for="(value, name, index) in days" v-show="showViewFn(value)">
-              <input type="text" autocomplete="off" class="form-control timeInput text-center" :data-day="value"
-                data-key="al" @input="addEvent" @change="addEvent" :value="data[value].al">
-              <img style="height: 36px;" onclick="openDetailsModal()"
+          <tr class="activityRow" v-for="t in selectedTasks">
+            <th>{{tasks[t].project}}: {{tasks[t].title}}</th>
+            <td v-for="(value, name, index) in days" v-show="showViewFn(value)" style="padding:0;position:relative">
+              <input type="number" min="0" max="23.99" autocomplete="off" class="form-control timeInput text-center"
+                :data-day="value" v-if="data[value]" :data-key="t" @input="addEvent" @change="addEvent"
+                :value="data[value][t].val" v-bind:class="data[value][t].status">
+              <img style="height: 38px;position: absolute;right: 0;" onclick="openDetailsModal()"
                 src="https://clockify.me/assets/images/ui-icons/input-dots-menu.svg">
             </td>
           </tr>
           <tr class="activityRow">
-            <th>DCFMS: DCF-123 Prepare login screen wireframes</th>
-            <td v-for="(value, name, index) in days" v-show="showViewFn(value)">
-              <input type="text" autocomplete="off" class="form-control timeInput text-center" @input="addEvent"
-                @change="addEvent" :value="data[value].d123" :data-day="value" data-key="d123">
-              <img style="height: 36px;" onclick="openDetailsModal()"
-                src="https://clockify.me/assets/images/ui-icons/input-dots-menu.svg">
-            </td>
-          </tr>
-          <tr class="activityRow">
-            <th>GMOne: GSOD-4854 IPrd search type is not listed in the Incident Timeline.</th>
-            <td v-for="(value, name, index) in days" v-show="showViewFn(value)">
-              <input type="text" autocomplete="off" class="form-control timeInput text-center" @input="addEvent"
-                @change="addEvent" :value="data[value].g45" :data-day="value" data-key="g45">
-              <img style="height: 36px;" onclick="openDetailsModal()"
-                src="https://clockify.me/assets/images/ui-icons/input-dots-menu.svg">
-            </td>
-          </tr>
-          <tr class="activityRow">
-            <th><a href="#" class="nav-link p-0">+ Add Project / Task</a></th>
+            <th><a href="#" class="nav-link p-0" v-on:click="openTasksModal()">+ Add Project / Task</a></th>
             <td class="c-sun" v-show="showViewFn('sun')"></td>
             <td class="c-mon" v-show="showViewFn('mon')"></td>
             <td class="c-tue" v-show="showViewFn('tue')"></td>
@@ -243,7 +213,48 @@
           </tr>
         </tbody>
       </table>
-      <div class="mt-2" id='calendar'></div>
+      <div class="modal fade" id="tasksModal" tabindex="-1" aria-labelledby="tasksModal" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-body">
+              <!-- <div class="mb-3">
+                <label for="exampleInputEmail1" class="form-label">Filter</label>
+                <input type="number" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
+              </div> -->
+              <div>
+                <ul class="list-group">
+                  <li class="list-group-item" v-for="p in project">
+                    <span v-on:click="toggleTasks(p)">
+                      <svg v-show="!showTasks[p]" width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-plus-square"
+                        fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd"
+                          d="M8 3.5a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.5.5H4a.5.5 0 0 1 0-1h3.5V4a.5.5 0 0 1 .5-.5z" />
+                        <path fill-rule="evenodd"
+                          d="M7.5 8a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1H8.5V12a.5.5 0 0 1-1 0V8z" />
+                        <path fill-rule="evenodd"
+                          d="M14 1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z" />
+                      </svg>
+                      <svg v-show="showTasks[p]" width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-plus-square"
+                        fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd"
+                          d="M8 3.5a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.5.5H4a.5.5 0 0 1 0-1h3.5V4a.5.5 0 0 1 .5-.5z" />
+                        <path fill-rule="evenodd"
+                          d="M7.5 8a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1H8.5V12a.5.5 0 0 1-1 0V8z" />
+                        <path fill-rule="evenodd"
+                          d="M14 1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z" />
+                      </svg>
+                      {{p}}</span>
+                    <ul class="list-group" v-show="showTasks[p]">
+                      <li class="list-group-item" v-for="(value, name, index) in tasks" v-if="showTask(p, name, value)">
+                        <a v-on:click="addTask(name,value)">{{value.title}}</a>
+                      </li>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog">
@@ -255,11 +266,22 @@
             </button>
           </div>
           <div class="modal-body">
-
             <div class="mb-3">
               <label for="exampleInputEmail1" class="form-label">Time spent</label>
               <input type="number" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
               <div id="timeHelp" class="form-text">Time spent in hours 3 / 3.5</div>
+            </div>
+            <div class="mb-3">
+              <div class="row">
+                <div class="col">
+                  <label for="exampleInputEmail1" class="form-label">From Time</label>
+                  <input type="time" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
+                </div>
+                <div class="col">
+                  <label for="exampleInputEmail1" class="form-label">To Time</label>
+                  <input type="time" class="form-control" id="exampleInputEmail2" aria-describedby="timeHelp">
+                </div>
+              </div>
             </div>
             <div class="mb-3">
               <label for="exampleInputPassword1" class="form-label">Details</label>
@@ -283,21 +305,6 @@
             </button>
           </div>
           <div class="modal-body">
-            <div class="mb-3">
-              <label for="exampleInputEmail1" class="form-label">Project</label>
-              <select name="projectSelect" id="projectSelect" class="form-control">
-                <option value="">GMOne</option>
-                <option value="">DCFMS</option>
-                <option value="">Leave</option>
-              </select>
-            </div>
-            <div class="mb-3">
-              <label for="exampleInputEmail1" class="form-label">Ticket</label>
-              <select name="TicketSelect" id="TicketSelect" class="form-control">
-                <option value="">GSOD-4854 IPrd search type is not listed in the Incident Timeline.</option>
-                <option value="">GSOD-884 Partial Update function is not working in the IPradar dashboard. </option>
-              </select>
-            </div>
             <div class="mb-3">
               <div class="row">
                 <div class="col">
@@ -337,72 +344,12 @@
     function openDetailsModal() {
       new bootstrap.Modal(document.getElementById('exampleModal'), {}).show();
     }
+    function openTasksModal() {
+      new bootstrap.Modal(document.getElementById('tasksModal'), {}).show();
+    }
     function save() {
       new bootstrap.Toast(document.getElementById('saveToast'), {}).show()
     }
-    document.addEventListener('DOMContentLoaded', function () {
-      var calendarEl = document.getElementById('calendar');
-      var calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'timeGridWeek',
-        allDaySlot: false,
-        selectable: true,
-        select: function (info) {
-          //alert('selected ' + info.startStr + ' to ' + info.endStr);
-          new bootstrap.Modal(document.getElementById('exampleModal2'), {}).show();
-        },
-        eventClick: function (calEvent, jsEvent, view) {
-          //alert('Click event: ' + calEvent.title);
-          new bootstrap.Modal(document.getElementById('exampleModal2'), {}).show();
-        },
-        events: [
-          {
-            id: 1,
-            title: 'DCF-184 Prepare SIT test cases for login',
-            start: '2020-06-27T09:00:00',
-            end: '2020-06-27T12:00:00',
-            color: "#eff5f9",
-            textColor: "#1a4862",
-            durationEditable: false,
-            className: "free",
-            additionalInfo: "A great event"
-          },
-          {
-            id: 2,
-            title: 'GSOD-4854 IPrd search type is not listed in the Incident Timeline. ',
-            start: '2020-06-27T13:00:00',
-            end: '2020-06-27T16:00:00',
-            color: "#eff5f9",
-            textColor: "#1a4862",
-            durationEditable: false,
-            className: "rejected",
-            additionalInfo: ""
-          },
-          {
-            id: 3,
-            title: 'DCF-123 Prepare login screen wireframes',
-            start: '2020-06-26T14:00:00',
-            end: '2020-06-26T18:00:00',
-            color: "#00eac3",
-            textColor: "#ffffff",
-            durationEditable: false,
-            className: "approved",
-            additionalInfo: ""
-          },
-          {
-            id: 4,
-            title: 'Sick Leave',
-            start: '2020-06-24T09:00:00',
-            end: '2020-06-24T18:00:00',
-            color: "#eff5f9",
-            textColor: "#1a4862",
-            durationEditable: false,
-            className: "free",
-            additionalInfo: ""
-          }
-        ]
-      });
-      // calendar.render();
-    });
   </script>
   <!-- Vue js -->
   <script src="assets/dist/js/vue.js"></script>

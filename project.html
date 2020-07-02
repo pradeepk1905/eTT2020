@@ -9,6 +9,7 @@
 
   <!-- Bootstrap core CSS -->
   <link href="assets/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/dist/css/vue-multiselect.min.css" rel="stylesheet">
 
   <style>
     .bd-placeholder-img {
@@ -176,6 +177,17 @@
     .gantt__row-bars li:after {
       right: 0;
     }
+
+    input.dateInpt {
+      max-width: 8rem;
+    }
+
+    .tktInput,
+    .tktInput>div>.dateInpt {
+      border: none;
+      border-bottom: 1px solid lightblue;
+      ;
+    }
   </style>
 </head>
 
@@ -275,34 +287,6 @@
               </ul>
             </div>
           </div>
-          <div class="row mt-5">
-            <div class="row">
-              <div class="col">
-                <h3>Task planner</h3>
-                <h4>
-                  Week :
-                  <small class="text-muted">21 - 27 June 2020</small>
-                </h4>
-              </div>
-              <div class="col text-right">
-                <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
-                  <div class="btn-group" role="group">
-                    <button id="btnGroupDrop1" type="button" class="btn btn-outline-secondary dropdown-toggle"
-                      data-toggle="dropdown" aria-expanded="false">
-                      This week
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                      <li><a class="dropdown-item" href="#">Last week</a></li>
-                      <li><a class="dropdown-item" href="#">Next week</a></li>
-                    </ul>
-                  </div>
-                  <button type="button" class="btn btn-outline-secondary">
-                    <</button> <button type="button" class="btn btn-outline-secondary">>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
         <div class="tab-pane fade p-3" id="members" role="tabpanel" aria-labelledby="members-tab">
           <div class="row">
@@ -375,30 +359,75 @@
             </thead>
             <tbody>
               <tr v-for="t in tasks">
-                <td>{{t.ticketID}}</td>
-                <td>{{t.summary}}</td>
-                <td>{{t.startDate}}</td>
-                <td>{{t.endDate}}</td>
-                <td>{{t.estimateHours}}</td>
-                <td>{{t.assignee.join(', ')}}</td>
-                <td><button class="btn btn-sm btn-outline-success">Save</button><button
+                <td>
+                  <div v-show="!t.edit" v-on:click="edit(t)">{{t.ticketID}}</div>
+                  <div v-show="t.edit"><input style="max-width: 8rem;" type="text" class="tktInput"
+                      v-model="t.ticketID"></div>
+                </td>
+                <td>
+                  <div v-show="!t.edit" v-on:click="edit(t)">{{t.summary}}</div>
+                  <div v-show="t.edit"><input type="text" class="tktInput" v-model="t.summary"></div>
+                </td>
+                <td>
+                  <div v-show="!t.edit" v-on:click="edit(t)">{{t.startDate}}</div>
+                  <div v-show="t.edit">
+                    <vuejs-datepicker input-class="dateInpt" format="yyyy/MM/dd" class="tktInput" v-model="t.startDate">
+                    </vuejs-datepicker>
+                  </div>
+                </td>
+                <td>
+                  <div v-show="!t.edit" v-on:click="edit(t)">{{t.endDate}}</div>
+                  <div v-show="t.edit">
+                    <vuejs-datepicker input-class="dateInpt" format="yyyy/MM/dd" class="tktInput" v-model="t.endDate">
+                    </vuejs-datepicker>
+                  </div>
+                </td>
+                <td>
+                  <div v-show="!t.edit" v-on:click="edit(t)">{{t.estimateHours}}</div>
+                  <div v-show="t.edit"><input style="max-width: 3rem;" type="number" class="tktInput"
+                      v-model="t.estimateHours">
+                  </div>
+                </td>
+                <td>
+                  <div v-show="!t.edit" v-on:click="edit(t)">{{t.assignee.join(', ')}}</div>
+                  <div v-show="t.edit">
+                    <multiselect class="tktInput" v-model="t.assignee" :options="members" :multiple="true"
+                      :close-on-select="false" :clear-on-select="false" :preserve-search="true" placeholder="assign"
+                      :hide-selected="true">
+                    </multiselect>
+                  </div>
+                </td>
+                <td><button class="btn btn-sm btn-outline-success" v-show="t.edit"
+                    v-on:click="save(t)">Done</button><button v-show="!t.edit"
                     class="btn btn-sm btn-outline-danger">Delete</button></td>
               </tr>
               <tr>
-                <td>GSOD-4854 </td>
-                <td>IPrd search type is not listed in the Incident Timeline.</td>
-                <td>2020-06-22</td>
-                <td>2020-06-26</td>
-                <td>8</td>
-                <td>Vijay</td>
-                <td><a href="#" data-toggle="modal" data-target="#exampleModal2"><svg class="bi bi-pencil-square"
-                      width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor"
-                      xmlns="http://www.w3.org/2000/svg">
-                      <path
-                        d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-                      <path fill-rule="evenodd"
-                        d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
-                    </svg></a></td>
+                <td>
+                  <input style="max-width: 8rem;" type="text" class="tktInput" v-model="task.ticketID">
+                </td>
+                <td>
+                  <input type="text" class="tktInput" v-model="task.summary">
+                </td>
+                <td>
+                  <vuejs-datepicker input-class="dateInpt" format="yyyy/MM/dd" class="tktInput"
+                    v-model="task.startDate">
+                  </vuejs-datepicker>
+                </td>
+                <td>
+                  <vuejs-datepicker input-class="dateInpt" format="yyyy/MM/dd" class="tktInput" v-model="task.endDate">
+                  </vuejs-datepicker>
+                </td>
+                <td>
+                  <input style="max-width: 3rem;" type="number" class="tktInput" v-model="task.estimateHours">
+                </td>
+                <td>
+                  <multiselect class="tktInput" v-model="task.assignee" :options="members" :multiple="true"
+                    :close-on-select="false" :clear-on-select="false" :preserve-search="true" placeholder="assign"
+                    :hide-selected="true">
+                  </multiselect>
+                </td>
+                <td><button class="btn btn-sm btn-outline-success" v-show="task" v-on:click="save(task)">Done</button>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -406,37 +435,22 @@
             <div class="gantt">
               <div class="gantt__row gantt__row--months">
                 <div class="gantt__row-first"></div>
-                <span>Sun<br>21/06</span><span>Mon<br>22/06</span><span>Tue<br>23/06</span>
-                <span>Wed<br>24/06</span><span>Thu<br>25/06</span><span>Fri<br>26/06</span>
-                <span>Sat<br>27/06</span>
+                <span>Sun<br>{{sun}}</span><span>Mon<br>{{mon}}</span><span>Tue<br>{{tue}}</span>
+                <span>Wed<br>{{wed}}</span><span>Thu<br>{{thu}}</span><span>Fri<br>{{fri}}</span>
+                <span>Sat<br>{{sat}}</span>
               </div>
               <div class="gantt__row gantt__row--lines" data-month="5">
+                <span></span><span class="marker"></span><span></span>
                 <span></span><span></span><span></span>
-                <span></span><span></span>
                 <span></span><span class="marker"></span>
               </div>
-              <div class="gantt__row">
+              <div class="gantt__row" v-for="m of members">
                 <div class="gantt__row-first">
-                  Vijay
+                  {{m}}
                 </div>
                 <ul class="gantt__row-bars">
-                  <li style="grid-column: 2/5; background-color: #2ecaac;">GSOD-4854 IPrd search type is not listed in
-                    the Incident Timeline.</li>
-                </ul>
-              </div>
-              <div class="gantt__row gantt__row--empty">
-                <div class="gantt__row-first">
-                  Ganesh
-                </div>
-                <ul class="gantt__row-bars"></ul>
-              </div>
-              <div class="gantt__row">
-                <div class="gantt__row-first">
-                  Ebby
-                </div>
-                <ul class="gantt__row-bars">
-                  <li style="grid-column: 2/4; background-color: #54c6f9;">GSOD-112 Partial Update function is not
-                    working in the IPradar dashboard.</li>
+                  <li v-for="t of getTasks(m)" v-bind:style="t.grid" style="background-color: #2ecaac;">{{t.summary}}
+                  </li>
                 </ul>
               </div>
             </div>
@@ -623,6 +637,7 @@
   <script src="assets/dist/js/moment.js"></script>
   <script src="assets/dist/js/vuejs-datepicker.min.js"></script>
   <script src="assets/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/dist/js/vue-multiselect.min.js"></script>
   <script>
     function openDetailsModal() {
       new bootstrap.Modal(document.getElementById('exampleModal'), {}).show();
@@ -633,50 +648,159 @@
     const app = new Vue({
       el: '#app',
       data: {
+        value: [],
+        options: [
+          { name: 'Vue.js', language: 'JavaScript' },
+          { name: 'Adonis', language: 'JavaScript' },
+          { name: 'Rails', language: 'Ruby' },
+          { name: 'Sinatra', language: 'Ruby' },
+          { name: 'Laravel', language: 'PHP' },
+          { name: 'Phoenix', language: 'Elixir' }
+        ],
+        mon: '',
+        tue: '',
+        wed: '',
+        thu: '',
+        fri: '',
+        sat: '',
+        sun: '',
         startDate: moment().startOf('week').format("yyyy/MM/DD"),
         endDate: moment().endOf('week').format("yyyy/MM/DD"),
         week: moment().startOf('week').format("yyyy/MM/DD") + " ~ " + moment().endOf('week').format("yyyy/MM/DD"),
-        members:[
+        editingTask: {
+          edit: true,
+          assignee: [],
+        },
+        task: {
+          edit: true,
+          assignee: [],
+          startDate: moment().startOf('week').format("yyyy/MM/DD"),
+          endDate: moment().endOf('week').format("yyyy/MM/DD"),
+        },
+        members: [
           "Vijay",
           "Pradeep",
           "Satish",
           "Ganesh"
         ],
-        tasks: [
-          {
-            id: 123456,
-            assignee: [
-              "Vijay",
-              "Pradeep"
-            ],
-            ticketID: "GSO-121",
-            summary: "Test task 121",
-            startDate: moment().startOf('week').format("yyyy/MM/DD"),
-            endDate: moment().endOf('week').format("yyyy/MM/DD"),
-            estimateHours: "2"
-          },
-          {
-            id: 123457,
-            assignee: [
-            "Vijay",
-            ],
-            ticketID: "GSO-122",
-            summary: "Test task 122",
-            startDate: moment().startOf('week').format("yyyy/MM/DD"),
-            endDate: moment().endOf('week').format("yyyy/MM/DD"),
-            estimateHours: "2"
-          }
-        ]
+        membersTasks: {},
+        tasks: [],
+        allTasks: []
       },
       components: {
-        vuejsDatepicker
+        vuejsDatepicker,
+        Multiselect: window.VueMultiselect.default
       },
       methods: {
         dateSelected: function (date) {
           this.startDate = moment(new Date(date)).startOf('week').format("yyyy/MM/DD");
           this.endDate = moment(new Date(date)).endOf('week').format("yyyy/MM/DD");
           this.week = moment(this.startDate).format('YYYY/MM/DD') + " ~ " + moment(this.endDate).format('YYYY/MM/DD')
+          this.sun = moment(this.startDate).format("MM/DD");
+          this.mon = moment(this.sun).add(1, 'd').format("MM/DD");
+          this.tue = moment(this.mon).add(1, 'd').format("MM/DD");
+          this.wed = moment(this.tue).add(1, 'd').format("MM/DD");
+          this.thu = moment(this.wed).add(1, 'd').format("MM/DD");
+          this.fri = moment(this.thu).add(1, 'd').format("MM/DD");
+          this.sat = moment(this.fri).add(1, 'd').format("MM/DD");
+          this.loadTasks();
         },
+        loadTasks: function () {
+          this.tasks = [];
+          this.allTasks.forEach(t => {
+            if ((moment(t.startDate).isSameOrAfter(this.startDate) &&
+              moment(t.startDate).isSameOrBefore(this.endDate)) ||
+              (moment(t.endDate).isSameOrAfter(this.startDate) &&
+                moment(t.endDate).isSameOrBefore(this.endDate))) {
+              t.grid = {};
+              if (moment(t.startDate).isSameOrBefore(this.startDate))
+                t.grid['grid-column-start'] = 1; else t.grid['grid-column-start'] = +moment(t.startDate).day() + 1;
+              if (moment(t.endDate).isSameOrAfter(this.endDate))
+                t.grid['grid-column-end'] = 8; else t.grid['grid-column-end'] = +moment(t.endDate).day() + 2;
+              this.tasks.push(t);
+            }
+          });
+        },
+        getTasks: function (m) {
+          var tasksForMember = [];
+          this.tasks.forEach(t => {
+            if (t.assignee.includes(m)) {
+              tasksForMember.push(t);
+            }
+          });
+          return tasksForMember;
+        },
+        edit: function (t) {
+          t.edit = true;
+          this.$forceUpdate();
+        },
+        save: function (t) {
+          if (!t.ticketID || t.ticketID == "") {
+            alert("Ticket ID is required");
+            return;
+          }
+          if (!t.summary || t.summary == "") {
+            alert("Summary is required");
+            return;
+          }
+          if (!t.startDate || t.startDate == "") {
+            alert("Start Date is required");
+            return;
+          }
+          if (!t.endDate || t.endDate == "") {
+            alert("End Date is required");
+            return;
+          }
+          t.startDate = moment(t.startDate).format("yyyy/MM/DD");
+          t.endDate = moment(t.endDate).format("yyyy/MM/DD");
+          if (t.id) {
+            t.edit = false;
+          } else {
+            t.edit = false;
+            t.id = new Date().getTime()
+            this.tasks.push(t);
+            this.task = {
+              edit: true,
+              assignee: [],
+              startDate: moment().startOf('week').format("yyyy/MM/DD"),
+              endDate: moment().endOf('week').format("yyyy/MM/DD"),
+            }
+          }
+          localStorage.setItem("tasks", JSON.stringify(this.tasks));
+          this.$forceUpdate();
+        }
+      },
+      mounted() {
+        if (localStorage.getItem("tasks") == undefined) {
+          this.allTasks = [
+            {
+              id: 123456,
+              assignee: [
+                "Vijay",
+                "Pradeep"
+              ],
+              ticketID: "GSO-121",
+              summary: "Test task 121",
+              startDate: moment().startOf('week').format("yyyy/MM/DD"),
+              endDate: moment().endOf('week').format("yyyy/MM/DD"),
+              estimateHours: "3"
+            },
+            {
+              id: 123457,
+              assignee: [
+                "Vijay",
+              ],
+              ticketID: "GSO-122",
+              summary: "Test task 122",
+              startDate: moment().startOf('week').format("yyyy/MM/DD"),
+              endDate: moment().endOf('week').format("yyyy/MM/DD"),
+              estimateHours: "2"
+            }
+          ]
+        } else {
+          this.allTasks = JSON.parse(localStorage.getItem("tasks"));
+        }
+        this.dateSelected(new Date());
       }
     })
   </script>

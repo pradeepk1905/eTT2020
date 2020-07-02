@@ -212,7 +212,7 @@
 
   <!-- Begin page content -->
   <main class="flex-shrink-0">
-    <div class="container">
+    <div class="container" id="app">
       <div class="row mt-5">
         <div class="col">
           <h1>Project - GMOne</h1>
@@ -302,45 +302,6 @@
                 </div>
               </div>
             </div>
-            <div class="wrapper">
-              <div class="gantt">
-                <div class="gantt__row gantt__row--months">
-                  <div class="gantt__row-first"></div>
-                  <span>Sun<br>21/06</span><span>Mon<br>22/06</span><span>Tue<br>23/06</span>
-                  <span>Wed<br>24/06</span><span>Thu<br>25/06</span><span>Fri<br>26/06</span>
-                  <span>Sat<br>27/06</span>
-                </div>
-                <div class="gantt__row gantt__row--lines" data-month="5">
-                  <span></span><span></span><span></span>
-                  <span></span><span></span>
-                  <span></span><span class="marker"></span>
-                </div>
-                <div class="gantt__row">
-                  <div class="gantt__row-first">
-                    Vijay
-                  </div>
-                  <ul class="gantt__row-bars">
-                    <li style="grid-column: 2/5; background-color: #2ecaac;">GSOD-4854 IPrd search type is not listed in
-                      the Incident Timeline.</li>
-                  </ul>
-                </div>
-                <div class="gantt__row gantt__row--empty">
-                  <div class="gantt__row-first">
-                    Ganesh
-                  </div>
-                  <ul class="gantt__row-bars"></ul>
-                </div>
-                <div class="gantt__row">
-                  <div class="gantt__row-first">
-                    Ebby
-                  </div>
-                  <ul class="gantt__row-bars">
-                    <li style="grid-column: 2/4; background-color: #54c6f9;">GSOD-112 Partial Update function is not
-                      working in the IPradar dashboard.</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
         <div class="tab-pane fade p-3" id="members" role="tabpanel" aria-labelledby="members-tab">
@@ -386,9 +347,19 @@
           </div>
         </div>
         <div class="tab-pane fade p-3" id="tickets" role="tabpanel" aria-labelledby="tickets-tab">
-          <div class="row">
-            <div class="col text-right m-3"><button class="btn btn-primary" data-toggle="modal"
-                data-target="#exampleModal2">Add</button></div>
+          <div class="mt-4 row">
+            <div class="col-sm">
+              <h4>
+                Week :
+                <small class="text-muted">{{week}}
+                  <vuejs-datepicker class="pl-1" input-class="calPicker" @selected="dateSelected" format="yyyy-MM-dd"
+                    calendar-button></vuejs-datepicker>
+                </small>
+              </h4>
+            </div>
+            <div class="col-sm text-right">
+              <!-- <button class="btn btn-primary btn-sm" onclick="save()">Save</button> -->
+            </div>
           </div>
           <table class="table table-hover table-responsive table-sm">
             <thead>
@@ -403,21 +374,15 @@
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>GSOD-112</td>
-                <td>Partial Update function is not working in the IPradar dashboard.</td>
-                <td>2020-06-22</td>
-                <td>2020-06-26</td>
-                <td>16</td>
-                <td>Vijay, Satish</td>
-                <td><a href="#" data-toggle="modal" data-target="#exampleModal2"><svg class="bi bi-pencil-square"
-                      width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor"
-                      xmlns="http://www.w3.org/2000/svg">
-                      <path
-                        d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-                      <path fill-rule="evenodd"
-                        d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
-                    </svg></a></td>
+              <tr v-for="t in tasks">
+                <td>{{t.ticketID}}</td>
+                <td>{{t.summary}}</td>
+                <td>{{t.startDate}}</td>
+                <td>{{t.endDate}}</td>
+                <td>{{t.estimateHours}}</td>
+                <td>{{t.assignee.join(', ')}}</td>
+                <td><button class="btn btn-sm btn-outline-success">Save</button><button
+                    class="btn btn-sm btn-outline-danger">Delete</button></td>
               </tr>
               <tr>
                 <td>GSOD-4854 </td>
@@ -437,21 +402,45 @@
               </tr>
             </tbody>
           </table>
-          <nav aria-label="...">
-            <ul class="pagination justify-content-end">
-              <li class="page-item disabled">
-                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
-              </li>
-              <li class="page-item"><a class="page-link" href="#">1</a></li>
-              <li class="page-item active" aria-current="page">
-                <a class="page-link" href="#">2 <span class="sr-only">(current)</span></a>
-              </li>
-              <li class="page-item"><a class="page-link" href="#">3</a></li>
-              <li class="page-item">
-                <a class="page-link" href="#">Next</a>
-              </li>
-            </ul>
-          </nav>
+          <div class="wrapper mt-5">
+            <div class="gantt">
+              <div class="gantt__row gantt__row--months">
+                <div class="gantt__row-first"></div>
+                <span>Sun<br>21/06</span><span>Mon<br>22/06</span><span>Tue<br>23/06</span>
+                <span>Wed<br>24/06</span><span>Thu<br>25/06</span><span>Fri<br>26/06</span>
+                <span>Sat<br>27/06</span>
+              </div>
+              <div class="gantt__row gantt__row--lines" data-month="5">
+                <span></span><span></span><span></span>
+                <span></span><span></span>
+                <span></span><span class="marker"></span>
+              </div>
+              <div class="gantt__row">
+                <div class="gantt__row-first">
+                  Vijay
+                </div>
+                <ul class="gantt__row-bars">
+                  <li style="grid-column: 2/5; background-color: #2ecaac;">GSOD-4854 IPrd search type is not listed in
+                    the Incident Timeline.</li>
+                </ul>
+              </div>
+              <div class="gantt__row gantt__row--empty">
+                <div class="gantt__row-first">
+                  Ganesh
+                </div>
+                <ul class="gantt__row-bars"></ul>
+              </div>
+              <div class="gantt__row">
+                <div class="gantt__row-first">
+                  Ebby
+                </div>
+                <ul class="gantt__row-bars">
+                  <li style="grid-column: 2/4; background-color: #54c6f9;">GSOD-112 Partial Update function is not
+                    working in the IPradar dashboard.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="tab-pane fade p-3" id="entries" role="tabpanel" aria-labelledby="entries-tab">
           <h6>Filter :</h6>
@@ -629,8 +618,10 @@
       <span class="text-muted">Copyright</span>
     </div>
   </footer>
-
-
+  <script src="assets/dist/js/vue.js"></script>
+  <script src="assets/dist/js/axios.min.js"></script>
+  <script src="assets/dist/js/moment.js"></script>
+  <script src="assets/dist/js/vuejs-datepicker.min.js"></script>
   <script src="assets/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     function openDetailsModal() {
@@ -639,6 +630,55 @@
     function save() {
       new bootstrap.Toast(document.getElementById('saveToast'), {}).show()
     }
+    const app = new Vue({
+      el: '#app',
+      data: {
+        startDate: moment().startOf('week').format("yyyy/MM/DD"),
+        endDate: moment().endOf('week').format("yyyy/MM/DD"),
+        week: moment().startOf('week').format("yyyy/MM/DD") + " ~ " + moment().endOf('week').format("yyyy/MM/DD"),
+        members:[
+          "Vijay",
+          "Pradeep",
+          "Satish",
+          "Ganesh"
+        ],
+        tasks: [
+          {
+            id: 123456,
+            assignee: [
+              "Vijay",
+              "Pradeep"
+            ],
+            ticketID: "GSO-121",
+            summary: "Test task 121",
+            startDate: moment().startOf('week').format("yyyy/MM/DD"),
+            endDate: moment().endOf('week').format("yyyy/MM/DD"),
+            estimateHours: "2"
+          },
+          {
+            id: 123457,
+            assignee: [
+            "Vijay",
+            ],
+            ticketID: "GSO-122",
+            summary: "Test task 122",
+            startDate: moment().startOf('week').format("yyyy/MM/DD"),
+            endDate: moment().endOf('week').format("yyyy/MM/DD"),
+            estimateHours: "2"
+          }
+        ]
+      },
+      components: {
+        vuejsDatepicker
+      },
+      methods: {
+        dateSelected: function (date) {
+          this.startDate = moment(new Date(date)).startOf('week').format("yyyy/MM/DD");
+          this.endDate = moment(new Date(date)).endOf('week').format("yyyy/MM/DD");
+          this.week = moment(this.startDate).format('YYYY/MM/DD') + " ~ " + moment(this.endDate).format('YYYY/MM/DD')
+        },
+      }
+    })
   </script>
 
 </body>

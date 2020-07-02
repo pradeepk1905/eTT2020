@@ -55,3 +55,11 @@ th {
 .timeInput.rejected {
   background: #ffbdbd;
 }
+
+.calPicker {
+  display: none !important;
+}
+.vdp-datepicker,
+.vdp-datepicker>div {
+  display: inline;
+}

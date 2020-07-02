@@ -87,9 +87,10 @@
         <div class="col-sm">
           <h4>
             Week :
-            <small class="text-muted">{{week}} <input type="date" class="form-control timeInput"
-                v-on:change="dateloader()" v-model="weeklyDatePicker"
-                style="width: 48px;display: inline;border: none;" /></small>
+            <small class="text-muted">{{week}}
+              <vuejs-datepicker class="pl-1" input-class="calPicker" @selected="dateSelected" format="yyyy-MM-dd"
+                calendar-button></vuejs-datepicker>
+              </small>
           </h4>
         </div>
         <div class="col-sm text-right">
@@ -340,8 +341,11 @@
   </script>
   <!-- Vue js -->
   <script src="assets/dist/js/vue.js"></script>
+  <!-- <script src="assets/dist/js/vue-router.min.js"></script> -->
   <script src="assets/dist/js/axios.min.js"></script>
   <script src="assets/dist/js/moment.js"></script>
+  <script src="assets/dist/js/vuejs-datepicker.min.js"></script>
+  <!-- <script src="app.js"></script> -->
   <script src="index.js"></script>
 </body>
 

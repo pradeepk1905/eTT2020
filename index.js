@@ -1,5 +1,8 @@
 var app = new Vue({
     el: '#employee-weekly-entry',
+    components: {
+        vuejsDatepicker
+    },
     data: {
         loading: true,
         weeklyDatePicker: '',
@@ -48,6 +51,10 @@ var app = new Vue({
         }
     },
     methods: {
+        dateSelected: function (date) {
+            this.weeklyDatePicker = date;
+            this.dateloader();
+        },
         dateloader: function () {
             var current = new Date(this.weeklyDatePicker)
             var first = current.getDate() - current.getDay();

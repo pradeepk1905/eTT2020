@@ -449,7 +449,7 @@
                   {{m}}
                 </div>
                 <ul class="gantt__row-bars">
-                  <li v-for="t of getTasks(m)" v-bind:style="t.grid" style="background-color: #2ecaac;">{{t.summary}}
+                  <li v-for="t of membersTasks[m]" v-bind:style="t.grid" style="background-color: #2ecaac;">{{t.summary}}
                   </li>
                 </ul>
               </div>
@@ -707,6 +707,7 @@
         },
         loadTasks: function () {
           this.tasks = [];
+          this.membersTasks = {};
           this.allTasks.forEach(t => {
             if ((moment(t.startDate).isSameOrAfter(this.startDate) &&
               moment(t.startDate).isSameOrBefore(this.endDate)) ||
@@ -718,17 +719,14 @@
               if (moment(t.endDate).isSameOrAfter(this.endDate))
                 t.grid['grid-column-end'] = 8; else t.grid['grid-column-end'] = +moment(t.endDate).day() + 2;
               this.tasks.push(t);
+              this.members.forEach(m => {
+                  if(!this.membersTasks[m]) this.membersTasks[m] = [];
+                  if (t.assignee.includes(m)) {
+                    this.membersTasks[m].push(t);
+                  }
+              });
             }
           });
-        },
-        getTasks: function (m) {
-          var tasksForMember = [];
-          this.tasks.forEach(t => {
-            if (t.assignee.includes(m)) {
-              tasksForMember.push(t);
-            }
-          });
-          return tasksForMember;
         },
         edit: function (t) {
           t.edit = true;
@@ -758,7 +756,7 @@
           } else {
             t.edit = false;
             t.id = new Date().getTime()
-            this.tasks.push(t);
+            this.allTasks.push(t);
             this.task = {
               edit: true,
               assignee: [],
@@ -766,7 +764,8 @@
               endDate: moment().endOf('week').format("yyyy/MM/DD"),
             }
           }
-          localStorage.setItem("tasks", JSON.stringify(this.tasks));
+          this.loadTasks();
+          localStorage.setItem("tasks", JSON.stringify(this.allTasks));
           this.$forceUpdate();
         }
       },

@@ -74,7 +74,7 @@
           <h1>Project Management</h1>
         </div>
         <div class="col text-right"><button class="btn btn-sm btn-outline-primary"
-            onclick="openDetailsModal()">Create</button></div>
+            @click="createForm" onclick="openDetailsModal()">Create</button></div>
       </div>
       <div id="ProjectManagementTable">
         <!-- table -->
@@ -102,7 +102,7 @@
                   d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.134 13.134 0 0 0 1.66 2.043C4.12 11.332 5.88 12.5 8 12.5c2.12 0 3.879-1.168 5.168-2.457A13.134 13.134 0 0 0 14.828 8a13.133 13.133 0 0 0-1.66-2.043C11.879 4.668 10.119 3.5 8 3.5c-2.12 0-3.879 1.168-5.168 2.457A13.133 13.133 0 0 0 1.172 8z" />
                 <path fill-rule="evenodd"
                   d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z" />
-              </svg></a><a class="ml-2" onclick="openDetailsModal()" style="cursor: pointer;"><svg
+              </svg></a><a class="ml-2" @click="fillForm(index)"  style="cursor: pointer;"><svg
                 class="bi bi-pencil-square" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor"
                 xmlns="http://www.w3.org/2000/svg">
                 <path
@@ -113,39 +113,95 @@
             </tr>
           </tbody>
         </table>
-      </div>
+        <!-- modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Create Project</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
 
-      <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="exampleModalLabel">Create Project</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-              <div class="mb-3">
-                <label for="exampleInputEmail1" class="form-label">Name</label>
-                <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
-                <!-- <div id="timeHelp" class="form-text">Time spent in hours 3 / 3.5</div> -->
+              <div class="modal-body">
+                <div class="mb-3">
+                  <label for="exampleInputEmail1" class="form-label">Name</label>
+                  <input type="text" v-model="modal.project_name" :placeholder="modal.project_name" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
+                  <!-- <div id="timeHelp" class="form-text">Time spent in hours 3 / 3.5</div> -->
+                </div>
+                <div class="mb-3">
+                  <label for="exampleInputPassword1" class="form-label">Project Id</label>
+                  <input type="text" v-model="modal.project_id" :placeholder="modal.project_id" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
+                </div>
+                <div class="mb-3">
+                  <label for="exampleInputPassword1" class="form-label">Code</label>
+                  <input type="text" v-model="modal.project_code" :placeholder="modal.project_code" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
+                </div>
+                <div class="mb-3">
+                  <label for="exampleInputPassword1" class="form-label">Client</label>
+                  <select v-model="modal.client" class="form-control" id="exampleFormControlSelect1">
+                    <option v-for="client in clients" :key="client.id"> {{ client.name }}</option>
+                  </select>
+                </div>
+                <!-- <div class="mb-3">
+                  <label for="exampleInputPassword1" class="form-label">Is project billable</label>
+                  <select v-model="modal.project_type" class="form-control" id="exampleFormControlSelect1">
+                    <option v-for="(condition,index) in project_billables" :key="index">{{ condition }}</option>
+                  </select>
+                </div> -->
+                
+                <div class="mb-3">
+                  <label for="exampleInputPassword1" class="form-label">Is project billable</label>
+                  <input type="checkbox" v-model="modal.project_is_billable" class="custom-control-input" id="customSwitch1">
+                </div>
+                <div class="mb-3">
+                  <label for="exampleInputPassword1" class="form-label">Sub division</label>
+                  <select v-model="modal.sub_division" class="form-control" id="exampleFormControlSelect1">
+                    <option v-for="sub_division in sub_divisions" :key="sub_division.id">{{ sub_division.name }}</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label for="exampleInputPassword1" class="form-label">Type</label>
+                  <select v-model="modal.project_type" class="form-control" id="exampleFormControlSelect1">
+                    <option v-for="project_type in project_types" :key="project_type.id">{{ project_type.name }}</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label for="exampleInputPassword1" class="form-label">Stage</label>
+                  <select v-model="modal.project_stage" class="form-control" id="exampleFormControlSelect1">
+                    <option v-for="project_stage in project_stages" :key="project_stage.id">{{ project_stage.name }}</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label for="exampleInputPassword1" class="form-label">Start Date</label>
+                  <input type="date" v-model="modal.project_start_date" :placeholder="modal.project_start_date" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
+                </div>
+                <div class="mb-3">
+                  <label for="exampleInputPassword1" class="form-label">End Date</label>
+                  <input type="date" v-model="modal.project_end_date" :placeholder="modal.project_end_date" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
+                </div>
+                <div class="mb-3">
+                  <label for="exampleInputPassword1" class="form-label">Planned Start Date</label>
+                  <input type="date" v-model="modal.project_planned_start" :placeholder="modal.project_planned_start" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
+                </div>
+                <div class="mb-3">
+                  <label for="exampleInputPassword1" class="form-label">Planned End Date</label>
+                  <input type="date" v-model="modal.project_planned_end" :placeholder="modal.project_planned_end" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
+                </div>
+                <div class="mb-3">
+                  <label for="exampleInputPassword1" class="form-label">Actual Start Date</label>
+                  <input type="date" v-model="modal.project_actual_start" :placeholder="modal.project_actual_start" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
+                </div>
+                <div class="mb-3">
+                  <label for="exampleInputPassword1" class="form-label">Actual End Date</label>
+                  <input type="date" v-model="modal.project_actual_end" :placeholder="modal.project_actual_start" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
+                </div>
               </div>
-              <div class="mb-3">
-                <label for="exampleInputPassword1" class="form-label">Code</label>
-                <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
+              <div class="modal-footer">
+                <button type="button" @click="updateForm = false" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" @click="submitForm" class="btn btn-primary">Save changes</button>
               </div>
-              <div class="mb-3">
-                <label for="exampleInputPassword1" class="form-label">Start Date</label>
-                <input type="date" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
-              </div>
-              <div class="mb-3">
-                <label for="exampleInputPassword1" class="form-label">End Date</label>
-                <input type="date" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary">Save changes</button>
             </div>
           </div>
         </div>
@@ -167,6 +223,28 @@
         el: '#ProjectManagementTable',
         data: { 
           response: Object,
+          clients:[],
+          sub_divisions:[],
+          project_types: [],
+          project_stages: [],
+          project_billables:[true,false],
+          modal: {
+            project_id:null,
+            project_name: '',
+            project_code: '',
+            client:null,
+            project_start_date: null,
+            project_end_date: null,
+            sub_division: null,
+            project_planned_start: null,
+            project_planned_end: null,
+            project_actual_start: null,
+            project_actual_end: null,
+            project_is_billable: null,
+            project_type: null,
+            project_stage: null
+          },
+          updateForm: false,
           rows: [],
         },
         methods: {
@@ -182,10 +260,122 @@
                     }).catch(error => {
                         console.log(error);
                     })
+          },
+          getDropdowns() {
+            axios.get('http://localhost:9000/project_management/get_dropdowns')
+                    .then(response => {
+                      const data = response.data
+                      console.log(data)
+                      if (data) {
+                        this.clients = [...data["client"]]
+                        this.sub_divisions = [...data["sub_division"]]
+                        this.project_types = [...data["project_type"]]
+                        this.project_stages = [...data["project_stage"]]
+                      }
+                    }).catch(error => {
+                        console.log(error);
+                    })
+          },
+          createForm(event){
+            this.updateForm=false
+            this.emptyModalValues()
+            new bootstrap.Modal(document.getElementById('exampleModal'), {}).show();
+          },
+          fillForm(index) {
+            const data = this.rows[index]
+            this.modal.project_id=data["project_id"]
+            this.modal.project_name=data["project_name"]
+            this.modal.project_code=data["project_code"]
+            this.modal.project_start_date=moment(String(data["project_start_date"])).format('YYYY-MM-DD')
+            this.modal.project_end_date=moment(String(data["project_end_date"])).format('YYYY-MM-DD')
+            this.modal.sub_division=data["sub_division"]
+            this.modal.client=data["client"]
+            this.modal.project_planned_start=moment(String(data["project_planned_start"])).format('YYYY-MM-DD')
+            this.modal.project_planned_end=moment(String(data["project_planned_end"])).format('YYYY-MM-DD')
+            this.modal.project_actual_start=moment(String(data["project_actual_start"])).format('YYYY-MM-DD')
+            this.modal.project_actual_end=moment(String(data["project_actual_end"])).format('YYYY-MM-DD')
+            this.modal.project_is_billable=data["project_is_billable"]
+            this.modal.project_type=data["project_type"]
+            this.modal.project_stage=data["project_stage"]
+            this.updateForm=true
+            new bootstrap.Modal(document.getElementById('exampleModal'), {}).show();
+          },
+          convertDateToTimestamp(value){
+            if (value){
+              const date = moment(String(value)).format()
+              return date
             }
+          },
+          submitForm(event) {
+            var data = {};
+            data["project_id"]=this.modal.project_id
+            data["project_name"]=this.modal.project_name
+            data["project_code"]=this.modal.project_code
+            data["client"]=this.modal.client
+            data["project_start_date"]=this.convertDateToTimestamp(this.modal.project_start_date)
+            data["project_end_date"]=this.convertDateToTimestamp(this.modal.project_end_date)
+            data["sub_division_id"] = this.getIdDropDowns(this.modal.sub_division,this.sub_divisions)
+            data["client_id"] = this.getIdDropDowns(this.modal.client,this.clients)
+            data["project_planned_start"] = this.convertDateToTimestamp(this.modal.project_planned_start)
+            data["project_planned_end"] = this.convertDateToTimestamp(this.modal.project_planned_end)
+            data["project_actual_start"] = this.convertDateToTimestamp(this.modal.project_actual_start)
+            data["project_actual_end"] = this.convertDateToTimestamp(this.modal.project_actual_end)
+            data["project_is_billable"] = this.modal.project_is_billable
+            data["project_type"] = this.getIdDropDowns(this.modal.project_type, this.project_types) 
+            data["project_stage"] = this.getIdDropDowns(this.modal.project_stage, this.project_stages) 
+            console.log(data);
+            if (this.updateForm){
+              let url ='http://localhost:9000/project/update_project/'+data["project_id"]
+              axios.put(url, data)
+              .then(function (response) {
+                alert("updated");
+              })
+              .catch(function (error) {
+                console.log(error);
+              });
+              console.log("update")
+            }else{
+              console.log("add")
+              axios.post('http://localhost:9000project/add_project', data)
+              .then(function (response) {
+                alert("added");
+              })
+              .catch(function (error) {
+                console.log(error);
+              });
+              this.emptyModalValues()
+            }
+          },
+          getIdDropDowns(value,arr) {
+            let data = arr.find(element => element.name == value );
+            if (data){
+              return data.id
+            }
+          },
+          
+          emptyModalValues(){
+            this.modal.project_name = ''
+            this.modal.project_code = ''
+            this.modal.project_start_date = null
+            this.modal.project_end_date = null
+            this.modal.sub_division=null
+            this.modal.client = null
+            this.modal.project_planned_start = null
+            this.modal.project_planned_end = null
+            this.modal.project_actual_start = null
+            this.modal.project_actual_end = null
+            this.modal.project_is_billable = null
+            this.modal.project_type = null
+            this.modal.project_stage = null
+          }
         },
+        computed: {
+          
+        },
+
         created() {
           this.getRows()
+          this.getDropdowns()
         },
         filters: {
           formatDate : function(value) {

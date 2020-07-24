@@ -227,7 +227,7 @@
     <div class="container" id="app">
       <div class="row mt-5">
         <div class="col">
-          <h1>Project - GMOne</h1>
+          <h1>Project - {{ project.project_name }}</h1>
         </div>
         <div class="col text-right">
           <div class="dropdown">
@@ -236,6 +236,7 @@
               Switch Project
             </button>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <a class="dropdown-item" v-for="(project,index) in projects_details" :key="index" @click="project_filters_selected_index=index" href="#">{{project.project_name}}</a>
               <a class="dropdown-item" href="#">GMOne</a>
               <a class="dropdown-item" href="#">DCFMS</a>
               <a class="dropdown-item" href="#">NTT Ltd</a>
@@ -266,24 +267,22 @@
           <div class="row">
             <div class="col">
               <h6>Name</h6>
-              <p class="lead">GMOne</p>
+              <p class="lead">{{ project.project_name }}</p>
               <h6>Code</h6>
-              <p class="lead">gmone</p>
+              <p class="lead">{{ project.project_code }}</p>
               <h6>Start Date</h6>
-              <p class="lead">2020-04-01</p>
+              <p class="lead">{{ project.project_start_date | formatDate }}</p>
               <h6>End Date</h6>
-              <p class="lead">2021-03-31</p>
+              <p class="lead">{{ project.project_end_date | formatDate }}</p>
             </div>
             <div class="col">
               <h4>Managers</h4>
               <ul class="list-group list-group-flush">
-                <li class="list-group-item">Satish</li>
+                <li class="list-group-item" v-for="(manager,index) in managers" :key="index" >{{manager}}</li>
               </ul>
               <h4 class="mt-3">Members</h4>
               <ul class="list-group list-group-flush">
-                <li class="list-group-item">Vijay</li>
-                <li class="list-group-item">Ganesh</li>
-                <li class="list-group-item">Ebby</li>
+                <li class="list-group-item" v-for="(member,index) in members" :key="index" >{{member}}</li>
               </ul>
             </div>
           </div>
@@ -301,7 +300,7 @@
                 </div>
               </div>
               <ul class="list-group list-group-flush">
-                <li class="list-group-item d-flex justify-content-between align-items-center ">Satish
+                <li class="list-group-item d-flex justify-content-between align-items-center " v-for="manager in managers">{{manager}}
                   <span class="badge" style="cursor: pointer;">X</span>
                 </li>
               </ul>
@@ -317,19 +316,16 @@
                 </div>
               </div>
               <ul class="list-group list-group-flush">
-                <li class="list-group-item d-flex justify-content-between align-items-center">Vijay
+                <li class="list-group-item d-flex justify-content-between align-items-center" v-for="member in members">{{member}}
                   <span class="badge" style="cursor: pointer;">X</span>
                 </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">Ganesh
-                  <span class="badge" style="cursor: pointer;">X</span>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">Ebby
-                  <span class="badge" style="cursor: pointer;">X</span>
+
                 </li>
               </ul>
             </div>
           </div>
         </div>
+        <!-- tickets -->
         <div class="tab-pane fade p-3" id="tickets" role="tabpanel" aria-labelledby="tickets-tab">
           <div class="mt-4 row">
             <div class="col-sm">
@@ -360,73 +356,73 @@
             <tbody>
               <tr v-for="t in tasks">
                 <td>
-                  <div v-show="!t.edit" v-on:click="edit(t)">{{t.ticketID}}</div>
+                  <div v-show="!t.edit" v-on:click="edit(t)">{{t.ticket_id}}</div>
                   <div v-show="t.edit"><input style="max-width: 8rem;" type="text" class="tktInput"
-                      v-model="t.ticketID"></div>
+                      v-model="t.ticket_id"></div>
                 </td>
                 <td>
                   <div v-show="!t.edit" v-on:click="edit(t)">{{t.summary}}</div>
                   <div v-show="t.edit"><input type="text" class="tktInput" v-model="t.summary"></div>
                 </td>
                 <td>
-                  <div v-show="!t.edit" v-on:click="edit(t)">{{t.startDate}}</div>
+                  <div v-show="!t.edit" v-on:click="edit(t)">{{t.task_start_date}}</div>
                   <div v-show="t.edit">
-                    <vuejs-datepicker input-class="dateInpt" format="yyyy/MM/dd" class="tktInput" v-model="t.startDate">
+                    <vuejs-datepicker input-class="dateInpt" format="yyyy/MM/dd" class="tktInput" v-model="t.task_start_date">
                     </vuejs-datepicker>
                   </div>
                 </td>
                 <td>
-                  <div v-show="!t.edit" v-on:click="edit(t)">{{t.endDate}}</div>
+                  <div v-show="!t.edit" v-on:click="edit(t)">{{t.task_end_date}}</div>
                   <div v-show="t.edit">
-                    <vuejs-datepicker input-class="dateInpt" format="yyyy/MM/dd" class="tktInput" v-model="t.endDate">
+                    <vuejs-datepicker input-class="dateInpt" format="yyyy/MM/dd" class="tktInput" v-model="t.task_end_date">
                     </vuejs-datepicker>
                   </div>
                 </td>
                 <td>
-                  <div v-show="!t.edit" v-on:click="edit(t)">{{t.estimateHours}}</div>
+                  <div v-show="!t.edit" v-on:click="edit(t)">{{t.estimateHours }}</div>
                   <div v-show="t.edit"><input style="max-width: 3rem;" type="number" class="tktInput"
                       v-model="t.estimateHours">
                   </div>
                 </td>
                 <td>
-                  <div v-show="!t.edit" v-on:click="edit(t)">{{t.assignee.join(', ')}}</div>
+                  <div v-show="!t.edit" v-on:click="edit(t)">{{t.assignees.join(', ')}}</div>
                   <div v-show="t.edit">
-                    <multiselect class="tktInput" v-model="t.assignee" :options="members" :multiple="true"
+                    <multiselect class="tktInput" v-model="t.assignees" :options="members" :multiple="true"
                       :close-on-select="false" :clear-on-select="false" :preserve-search="true" placeholder="assign"
                       :hide-selected="true">
                     </multiselect>
                   </div>
                 </td>
                 <td><button class="btn btn-sm btn-outline-success" v-show="t.edit"
-                    v-on:click="save(t)">Done</button><button v-show="!t.edit"
-                    class="btn btn-sm btn-outline-danger">Delete</button></td>
+                    v-on:click="saveTicket(t)">Done</button><button v-show="!t.edit"
+                    class="btn btn-sm btn-outline-danger" @click="deleteTicket(t)">Delete</button></td>
               </tr>
               <tr>
                 <td>
-                  <input style="max-width: 8rem;" type="text" class="tktInput" v-model="task.ticketID">
+                  <input style="max-width: 8rem;" type="text" class="tktInput" v-model="task.ticket_id">
                 </td>
                 <td>
                   <input type="text" class="tktInput" v-model="task.summary">
                 </td>
                 <td>
                   <vuejs-datepicker input-class="dateInpt" format="yyyy/MM/dd" class="tktInput"
-                    v-model="task.startDate">
+                    v-model="task.task_start_date">
                   </vuejs-datepicker>
                 </td>
                 <td>
-                  <vuejs-datepicker input-class="dateInpt" format="yyyy/MM/dd" class="tktInput" v-model="task.endDate">
+                  <vuejs-datepicker input-class="dateInpt" format="yyyy/MM/dd" class="tktInput" v-model="task.task_end_date">
                   </vuejs-datepicker>
                 </td>
                 <td>
                   <input style="max-width: 3rem;" type="number" class="tktInput" v-model="task.estimateHours">
                 </td>
                 <td>
-                  <multiselect class="tktInput" v-model="task.assignee" :options="members" :multiple="true"
+                  <multiselect class="tktInput" v-model="task.assignees" :options="members" :multiple="true"
                     :close-on-select="false" :clear-on-select="false" :preserve-search="true" placeholder="assign"
                     :hide-selected="true">
                   </multiselect>
                 </td>
-                <td><button class="btn btn-sm btn-outline-success" v-show="task" v-on:click="save(task)">Done</button>
+                <td><button class="btn btn-sm btn-outline-success" v-show="task" v-on:click="saveTicket(task)">Done</button>
                 </td>
               </tr>
             </tbody>
@@ -456,18 +452,17 @@
             </div>
           </div>
         </div>
+        <!-- entries -->
         <div class="tab-pane fade p-3" id="entries" role="tabpanel" aria-labelledby="entries-tab">
           <h6>Filter :</h6>
           <div class="btn-group">
             <div class="dropdown">
               <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Members: All
+                Members: {{ selected_member_filter }}
               </button>
               <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <a class="dropdown-item" href="#">Vijay</a>
-                <a class="dropdown-item" href="#">Ebby</a>
-                <a class="dropdown-item" href="#">Satish</a>
+                <a class="dropdown-item" href="#" v-for="(member,index) in project_members_filters" :key="index" @click="selected_member_filter = member">{{member}}</a>
               </div>
             </div>
           </div>
@@ -475,13 +470,10 @@
             <div class="dropdown">
               <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Status: Pending
+                Status: {{ selected_status_filter }}
               </button>
               <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <a class="dropdown-item" href="#">All</a>
-                <a class="dropdown-item" href="#">Pending</a>
-                <a class="dropdown-item" href="#">Approved</a>
-                <a class="dropdown-item" href="#">Rejected</a>
+                <a class="dropdown-item" v-for="(status,index) in statuses" :key="index" @click="selected_status_filter=status" href="#">{{status}}</a>
               </div>
             </div>
           </div>
@@ -497,39 +489,28 @@
               </tr>
             </thead>
             <tbody>
-              <tr>
+              <tr v-for="(entry,index) in entries" :key="index">
                 <td><input type="checkbox"></td>
-                <td>GSOD-456 Partial Update function is not working in the IPradar dashboard.</td>
-                <td>2020-06-26</td>
-                <td>8</td>
-                <td>Vijay</td>
-                <td><svg class="bi bi-check-square-fill" width="1em" height="1em" viewBox="0 0 16 16"
-                    fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                    <path fill-rule="evenodd"
-                      d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm10.03 4.97a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
-                  </svg>
-                  <svg class="bi bi-x-square-fill" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <path fill-rule="evenodd"
-                      d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm9.854 4.854a.5.5 0 0 0-.708-.708L8 7.293 4.854 4.146a.5.5 0 1 0-.708.708L7.293 8l-3.147 3.146a.5.5 0 0 0 .708.708L8 8.707l3.146 3.147a.5.5 0 0 0 .708-.708L8.707 8l3.147-3.146z" />
-                  </svg></td>
-              </tr>
-              <tr>
-                <td><input type="checkbox"></td>
-                <td>GSOD-4854 IPrd search type is not listed in the Incident Timeline.</td>
-                <td>2020-06-25</td>
-                <td>8</td>
-                <td>Vijay</td>
-                <td><svg class="bi bi-check-square-fill" width="1em" height="1em" viewBox="0 0 16 16"
-                    fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                    <path fill-rule="evenodd"
-                      d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm10.03 4.97a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
-                  </svg>
-                  <svg class="bi bi-x-square-fill" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <path fill-rule="evenodd"
-                      d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm9.854 4.854a.5.5 0 0 0-.708-.708L8 7.293 4.854 4.146a.5.5 0 1 0-.708.708L7.293 8l-3.147 3.146a.5.5 0 0 0 .708.708L8 8.707l3.146 3.147a.5.5 0 0 0 .708-.708L8.707 8l3.147-3.146z" />
-                  </svg></td>
+                <td>{{entry.task}}</td>
+                <td>{{entry.entry_date | formatDate }}</td>
+                <td>{{entry.minutes | formatDuration}}</td>
+                <td>{{entry.employee}}</td>
+                <td>
+                  <span v-show="entry.entry_status ==='pending'">
+                    <svg @click="approveEntry(entry)" class="bi bi-check-square-fill" width="1em" height="1em" viewBox="0 0 16 16"
+                      fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                      <path fill-rule="evenodd"
+                        d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm10.03 4.97a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                    </svg>
+                    <svg @click="rejectEntry(entry)" class="bi bi-x-square-fill" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor"
+                      xmlns="http://www.w3.org/2000/svg">
+                      <path fill-rule="evenodd"
+                        d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm9.854 4.854a.5.5 0 0 0-.708-.708L8 7.293 4.854 4.146a.5.5 0 1 0-.708.708L7.293 8l-3.147 3.146a.5.5 0 0 0 .708.708L8 8.707l3.146 3.147a.5.5 0 0 0 .708-.708L8.707 8l3.147-3.146z" />
+                    </svg>
+                  </span><button class="btn btn-sm btn-outline-success" v-show="entry.entry_status==='approved'"
+                  >Approved</button><button v-show="entry.entry_status==='rejected'"
+                  class="btn btn-sm btn-outline-danger" >Rejected</button>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -625,6 +606,30 @@
           </div>
         </div>
       </div>
+      <!-- reject Modal -->
+      <!-- Modal -->
+      <div class="modal fade" id="exampleModalReject" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3">
+                <label for="formGroupExampleInput" class="form-label">Rejection Reason</label>
+                <textarea class="form-control" v-model="entry_update_modal.entry_reject_reason" placeholder="Enter rejection reason" ></textarea>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="button" @click="submitRejection" class="btn btn-primary">Save changes</button>
+            </div>
+          </div>
+        </div>
+      </div>
   </main>
 
   <footer class="footer mt-auto py-3 bg-light">
@@ -648,7 +653,20 @@
     const app = new Vue({
       el: '#app',
       data: {
+        entry_update_modal:{},
+        project_filters_selected_index:null,
+        selected_status_filter:"All",
+        selected_member_filter:"All",
+        project_members_filters:[],
+        statuses: ["All","approved","rejected","pending"],
+        projects_details: [],
+        project:{},
+        project_members:{},
         value: [],
+        fetched_project_tasks: [],
+        approver:{
+          name: "Aswanth", id:111
+        },
         options: [
           { name: 'Vue.js', language: 'JavaScript' },
           { name: 'Adonis', language: 'JavaScript' },
@@ -673,19 +691,28 @@
         },
         task: {
           edit: true,
-          assignee: [],
-          startDate: moment().startOf('week').format("yyyy/MM/DD"),
-          endDate: moment().endOf('week').format("yyyy/MM/DD"),
+          assignees: [],
+          task_start_date: moment().startOf('week').format("yyyy/MM/DD"),
+          task_end_date: moment().endOf('week').format("yyyy/MM/DD"),
         },
         members: [
           "Vijay",
           "Pradeep",
           "Satish",
-          "Ganesh"
+          "Ganesh",
+          "Aswanth",
+          "Aravi",
+          "Innacy"
+        ],
+        managers:[
+          "Satish"
         ],
         membersTasks: {},
         tasks: [],
-        allTasks: []
+        allTasks: [],
+        all_entries: [],
+        entries: [],
+
       },
       components: {
         vuejsDatepicker,
@@ -705,35 +732,109 @@
           this.sat = moment(this.fri).add(1, 'd').format("MM/DD");
           this.loadTasks();
         },
+        getProjectTasks: function() {
+          url='http://localhost:9000/task/get_project_task/'+this.project.project_id
+          axios.get(url)
+            .then(response => {
+              const data = response.data
+              if (data) {
+                this.fetched_project_tasks = []
+                if (data["Tasks"]){
+                  this.fetched_project_tasks = [...data["Tasks"]]
+                  this.fetched_project_tasks.forEach(t => {
+                    t.task_start_date= moment(String(t.task_start_date)).format('YYYY/MM/DD')
+                    t.task_end_date= moment(String(t.task_end_date)).format('YYYY/MM/DD')
+                    t["estimateHours"] = this.formatMinutesToHours(t.task_estimated_minutes)  
+                    t.edit=false
+                  })
+                }
+                
+              }
+              console.log(this.fetched_project_tasks)
+              this.loadTasks()
+            }).catch(error => {
+              console.log(error);
+            })
+
+        },
+        formatMinutesToHours : function(value) {
+          if(value){
+            const hr=moment.duration(value, 'minutes').get('hours')
+            const min= (value % 60)/60
+            dur=Math.round((hr+min) * 10) / 10
+            return dur
+          }
+        },
+        filterEntries: function(value, arr, attr) {
+          if (value === "All"){
+            console.log(arr)
+            return arr
+          }
+          if (value && arr) {
+            const data= arr.filter( e => {
+              return e[attr] == value
+            })
+            console.log(data)
+            return data
+          }
+        },
         loadTasks: function () {
           this.tasks = [];
           this.membersTasks = {};
-          this.allTasks.forEach(t => {
-            if ((moment(t.startDate).isSameOrAfter(this.startDate) &&
-              moment(t.startDate).isSameOrBefore(this.endDate)) ||
-              (moment(t.endDate).isSameOrAfter(this.startDate) &&
-                moment(t.endDate).isSameOrBefore(this.endDate))) {
+          // console.log(this.allTasks)
+          // (moment(t.task_start_date).isSameOrAfter(this.startDate) &&
+          //     moment(t.task_start_date).isSameOrBefore(this.endDate)) ||
+          //     (moment(t.task_end_date).isSameOrAfter(this.startDate) &&
+          //       moment(t.task_end_date).isSameOrBefore(this.endDate))
+
+          this.fetched_project_tasks.forEach(t =>{
+            console.log("all_project_tasks",t)
+            if (
+              (moment(t.task_start_date).isSameOrBefore(this.endDate) &&
+              moment(t.task_end_date).isSameOrAfter(this.startDate))
+            ){
               t.grid = {};
-              if (moment(t.startDate).isSameOrBefore(this.startDate))
-                t.grid['grid-column-start'] = 1; else t.grid['grid-column-start'] = +moment(t.startDate).day() + 1;
-              if (moment(t.endDate).isSameOrAfter(this.endDate))
-                t.grid['grid-column-end'] = 8; else t.grid['grid-column-end'] = +moment(t.endDate).day() + 2;
+              if (moment(t.task_start_date).isSameOrBefore(this.startDate))
+                t.grid['grid-column-start'] = 1; else t.grid['grid-column-start'] = +moment(t.task_start_date).day() + 1;
+              if (moment(t.task_end_date).isSameOrAfter(this.endDate))
+                t.grid['grid-column-end'] = 8; else t.grid['grid-column-end'] = +moment(t.task_end_date).day() + 2;
               this.tasks.push(t);
-              this.members.forEach(m => {
-                  if(!this.membersTasks[m]) this.membersTasks[m] = [];
-                  if (t.assignee.includes(m)) {
-                    this.membersTasks[m].push(t);
+              this.members.forEach(member => {
+                  if(!this.membersTasks[member]) this.membersTasks[member] = [];
+                  if (t.assignees.includes(member)) {
+                    console.log("pushed")
+                    this.membersTasks[member].push(t);
                   }
               });
             }
           });
+          console.log(this.tasks)
+          // this.allTasks.forEach(t => {
+          //   if ((moment(t.startDate).isSameOrAfter(this.startDate) &&
+          //     moment(t.startDate).isSameOrBefore(this.endDate)) ||
+          //     (moment(t.endDate).isSameOrAfter(this.startDate) &&
+          //       moment(t.endDate).isSameOrBefore(this.endDate))) {
+          //     t.grid = {};
+          //     if (moment(t.startDate).isSameOrBefore(this.startDate))
+          //       t.grid['grid-column-start'] = 1; else t.grid['grid-column-start'] = +moment(t.startDate).day() + 1;
+          //     if (moment(t.endDate).isSameOrAfter(this.endDate))
+          //       t.grid['grid-column-end'] = 8; else t.grid['grid-column-end'] = +moment(t.endDate).day() + 2;
+          //     this.tasks.push(t);
+          //     this.members.forEach(m => {
+          //         if(!this.membersTasks[m]) this.membersTasks[m] = [];
+          //         if (t.assignee.includes(m)) {
+          //           this.membersTasks[m].push(t);
+          //         }
+          //     });
+          //   }
+          // });
         },
         edit: function (t) {
           t.edit = true;
           this.$forceUpdate();
         },
-        save: function (t) {
-          if (!t.ticketID || t.ticketID == "") {
+        saveTicket: function (t) {
+          if (!t.ticket_id || t.ticket_id == "") {
             alert("Ticket ID is required");
             return;
           }
@@ -741,22 +842,50 @@
             alert("Summary is required");
             return;
           }
-          if (!t.startDate || t.startDate == "") {
+          if (!t.task_start_date || t.task_start_date == "") {
             alert("Start Date is required");
             return;
           }
-          if (!t.endDate || t.endDate == "") {
+          if (!t.task_end_date || t.task_end_date == "") {
             alert("End Date is required");
             return;
           }
-          t.startDate = moment(t.startDate).format("yyyy/MM/DD");
-          t.endDate = moment(t.endDate).format("yyyy/MM/DD");
-          if (t.id) {
+          t.task_start_date = moment(t.task_start_date).format("yyyy/MM/DD");
+          t.task_end_date = moment(t.task_end_date).format("yyyy/MM/DD");
+          var data={}
+          data["ticket_id"]=t.ticket_id 
+          data["summary"]  = t.summary,
+          data["task_start_date"]  = moment(String(t.task_start_date)).format()
+          data["task_end_date"]  = moment(String(t.task_end_date)).format()
+          data["task_estimated_minutes"]  = t.estimateHours * 60,
+          data["project_id"]  = this.project.project_id
+          data["project"] = this.project.project_name
+          data["assignees"]  = [...t.assignees]
+          console.log(data)
+          if (t.task_id >= 0) {
             t.edit = false;
+            // update
+            let url ='http://localhost:9000/task/update_task/'+t.task_id
+              axios.put(url, data)
+              .then(response => {
+                this.getProjectTasks()
+                alert("updated");
+              })
+              .catch(function (error) {
+                console.log(error);
+              });
           } else {
+            // add
             t.edit = false;
-            t.id = new Date().getTime()
-            this.allTasks.push(t);
+            axios.post('http://localhost:9000/task/add_task', data)
+              .then(response => {
+                this.getProjectTasks()
+                alert("added");
+              })
+              .catch(function (error) {
+                console.log(error);
+              });
+          
             this.task = {
               edit: true,
               assignee: [],
@@ -764,42 +893,195 @@
               endDate: moment().endOf('week').format("yyyy/MM/DD"),
             }
           }
-          this.loadTasks();
-          localStorage.setItem("tasks", JSON.stringify(this.allTasks));
-          this.$forceUpdate();
+          // this.loadTasks();
+          // localStorage.setItem("tasks", JSON.stringify(this.allTasks));
+          // this.$forceUpdate();
+        },
+        deleteTicket: function(t){
+          // delete api
+          if(t.task_id){
+            url='http://localhost:9000/task/delete_task/'+t.task_id
+          axios.delete(url)
+            .then(response => {
+              console.log(response)
+              alert("deleted")
+              this.getProjectTasks()
+            }).catch(error => {
+              console.log(error);
+            })
+          }
+        },
+        getAllEntries: function(){
+          url='http://localhost:9000/entry/get_project_entry/'+this.project.project_id
+          axios.get(url)
+            .then(response => {
+              const data = response.data
+              if (data) {
+                this.all_entries = []
+                if (data["Entries"]){
+                  this.all_entries = [...data["Entries"]]
+                }
+                
+              }
+              // console.log(this.fetched_project_tasks)
+              // this.loadTasks()
+            }).catch(error => {
+              console.log(error);
+            })
+        },
+        updateStatusOfEntry: function(data){
+          let url ='http://localhost:9000/entry/update_entry/'+ data["entry_id"]
+              axios.put(url, data)
+              .then(response => {
+                this.getAllEntries()
+                this.entry_update_modal={}
+                alert("updated");
+              })
+              .catch(function (error) {
+                console.log(error);
+              });
+        },
+        approveEntry: function(entry){
+          entry.entry_status="approved"
+          entry.approver_id=this.approver.id
+          entry.approved_on=moment().format()
+          this.entry_update_modal={}
+          this.entry_update_modal=entry
+          var data={}
+          data["entry_id"] = this.entry_update_modal.entry_id
+          data["task_id"] = this.entry_update_modal.task_id
+          data["entry_status"]= this.entry_update_modal.entry_status
+          data["entry_reject_reason"]=this.entry_update_modal.entry_reject_reason
+          data["approver_id"]=this.entry_update_modal.approver_id
+          data["approved_on"]=this.entry_update_modal.approved_on
+          this.updateStatusOfEntry(data)
+        },
+        rejectEntry: function(entry){
+          entry.entry_status="rejected"
+          entry.rejecter_id=this.approver.id
+          entry.rejected_on=moment().format()
+          this.entry_update_modal={}
+          this.entry_update_modal=entry
+          new bootstrap.Modal(document.getElementById('exampleModalReject'), {}).show();
+        },
+        submitRejection: function(){
+          var data={}
+          data["entry_id"] = this.entry_update_modal.entry_id
+          data["task_id"] = this.entry_update_modal.task_id
+          data["entry_status"]= this.entry_update_modal.entry_status
+          data["entry_reject_reason"]=this.entry_update_modal.entry_reject_reason
+          data["rejecter_id"]=this.entry_update_modal.rejecter_id
+          data["rejected_on"]=this.entry_update_modal.rejected_on
+          this.updateStatusOfEntry(data)
+          
         }
       },
+
+      watch:{
+        'selected_status_filter': {
+          handler: function(val){
+            this.entries=this.filterEntries(val, this.all_entries, "entry_status")
+            this.entries=this.filterEntries(this.selected_member_filter,this.entries,"employee")
+          }
+        },
+        'selected_member_filter': {
+          handler: function(val){
+            this.entries=this.filterEntries(val, this.all_entries, "employee")
+            this.entries=this.filterEntries(this.selected_status_filter,this.entries,"entry_status")
+          }
+        },
+        'members': {
+          handler: function(val){
+            this.project_members_filters=["All"]
+            this.project_members_filters = this.project_members_filters.concat(val)
+          }
+        },
+        'project_filters_selected_index': {
+          handler: function(val){
+            this.project_filters_selected_index= parseInt(val, 10)
+            this.project=this.projects_details[this.project_filters_selected_index]
+          }
+        },
+        'project':{
+          handler: function(val){
+            this.getProjectTasks()
+            this.getAllEntries()
+          }
+        },
+        'projects_details': {
+          handler: function(val){
+            this.project= val[this.project_filters_selected_index] 
+            console.log(this.project) 
+          }
+        },
+        'all_entries': {
+          handler: function(val){
+            this.selected_status_filter="All"
+            this.selected_member_filter="All"
+            this.entries =[...this.all_entries]
+          }
+        },
+        
+          
+        
+      },
+      created() {
+        var project = JSON.parse(localStorage.getItem('project'));
+        this.project_filters_selected_index=project["view_project_index"]
+        this.projects_details = [...project["all details"]]
+        console.log(this.projects_details)
+        console.log("index: ",this.project_filters_selected_index)
+        //this.project = project["all details"][project["view_project_index"]]  
+      },
       mounted() {
-        if (localStorage.getItem("tasks") == undefined) {
-          this.allTasks = [
-            {
-              id: 123456,
-              assignee: [
-                "Vijay",
-                "Pradeep"
-              ],
-              ticketID: "GSO-121",
-              summary: "Test task 121",
-              startDate: moment().startOf('week').format("yyyy/MM/DD"),
-              endDate: moment().endOf('week').format("yyyy/MM/DD"),
-              estimateHours: "3"
-            },
-            {
-              id: 123457,
-              assignee: [
-                "Vijay",
-              ],
-              ticketID: "GSO-122",
-              summary: "Test task 122",
-              startDate: moment().startOf('week').format("yyyy/MM/DD"),
-              endDate: moment().endOf('week').format("yyyy/MM/DD"),
-              estimateHours: "2"
-            }
-          ]
-        } else {
-          this.allTasks = JSON.parse(localStorage.getItem("tasks"));
-        }
+        this.project_members_filters=["All"]
+        this.project_members_filters = this.project_members_filters.concat(this.members)
+        console.log(this.project_members_filters)
+        // if (localStorage.getItem("tasks") == undefined) {
+        //   this.allTasks = [
+        //     {
+        //       id: 123456,
+        //       assignee: [
+        //         "Vijay",
+        //         "Pradeep"
+        //       ],
+        //       ticketID: "GSO-121",
+        //       summary: "Test task 121",
+        //       startDate: moment().startOf('week').format("yyyy/MM/DD"),
+        //       endDate: moment().endOf('week').format("yyyy/MM/DD"),
+        //       estimateHours: "3"
+        //     },
+        //     {
+        //       id: 123457,
+        //       assignee: [
+        //         "Vijay",
+        //       ],
+        //       ticketID: "GSO-122",
+        //       summary: "Test task 122",
+        //       startDate: moment().startOf('week').format("yyyy/MM/DD"),
+        //       endDate: moment().endOf('week').format("yyyy/MM/DD"),
+        //       estimateHours: "2"
+        //     }
+        //   ]
+        // } else {
+        //   this.allTasks = JSON.parse(localStorage.getItem("tasks"));
+        // }
         this.dateSelected(new Date());
+      },
+      filters: {
+        formatDate : function(value) {
+          if (value) {
+                return moment(String(value)).format('YYYY/MM/DD')
+          }
+        },
+        formatDuration : function(value){
+          if(value){
+            const hr=moment.duration(value, 'minutes').get('hours')
+            const min= (value % 60)/60
+            dur=Math.round((hr+min) * 10) / 10
+            return dur
+          }
+        }
       }
     })
   </script>

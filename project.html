@@ -237,9 +237,6 @@
             </button>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
               <a class="dropdown-item" v-for="(project,index) in projects_details" :key="index" @click="project_filters_selected_index=index" href="#">{{project.project_name}}</a>
-              <a class="dropdown-item" href="#">GMOne</a>
-              <a class="dropdown-item" href="#">DCFMS</a>
-              <a class="dropdown-item" href="#">NTT Ltd</a>
             </div>
           </div>
         </div>
@@ -296,12 +293,12 @@
                 </div>
                 <div class="col text-right">
                   <button class="btn btn-sm btn-outline-secondary" data-toggle="modal"
-                    data-target="#exampleModal1">+</button>
+                  @click="isAddManger=true" data-target="#exampleModal1">+</button>
                 </div>
               </div>
               <ul class="list-group list-group-flush">
                 <li class="list-group-item d-flex justify-content-between align-items-center " v-for="manager in managers">{{manager}}
-                  <span class="badge" style="cursor: pointer;">X</span>
+                  <span @click="deleteProjectMember(manager)" class="badge" style="cursor: pointer;">X</span>
                 </li>
               </ul>
             </div>
@@ -312,12 +309,12 @@
                 </div>
                 <div class="col text-right">
                   <button class="btn btn-sm btn-outline-secondary" data-toggle="modal"
-                    data-target="#exampleModal1">+</button>
+                   @click="isAddManger=false" data-target="#exampleModal1">+</button>
                 </div>
               </div>
               <ul class="list-group list-group-flush">
                 <li class="list-group-item d-flex justify-content-between align-items-center" v-for="member in members">{{member}}
-                  <span class="badge" style="cursor: pointer;">X</span>
+                  <span @click="deleteProjectMember(member)" class="badge" style="cursor: pointer;">X</span>
                 </li>
 
                 </li>
@@ -543,18 +540,15 @@
             <div class="modal-body">
               <div class="mb-3">
                 <label for="formGroupExampleInput" class="form-label">Name</label>
-                <select class="form-control" multiple>
-                  <option value="">Ebby</option>
-                  <option value="">Vijay</option>
-                  <option value="">Pradeep</option>
-                  <option value="">Ganesh</option>
-                  <option value="">Satish</option>
-                </select>
+                <multiselect class="employeesInput" v-model="selectedEmployees" :options="employees" :multiple="true"
+                      :close-on-select="false" :clear-on-select="false" :preserve-search="true" placeholder="assign"
+                      :hide-selected="true">
+                </multiselect>
               </div>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary">Save changes</button>
+              <button type="button" @click="addProjectMembers" class="btn btn-primary">Save changes</button>
             </div>
           </div>
         </div>
@@ -653,6 +647,11 @@
     const app = new Vue({
       el: '#app',
       data: {
+        allEmployeesDetails:[],
+        employees:[],
+        selectedEmployees:[],
+        isAddManger:false,
+        allProjectMembers:[],
         entry_update_modal:{},
         project_filters_selected_index:null,
         selected_status_filter:"All",
@@ -732,6 +731,76 @@
           this.sat = moment(this.fri).add(1, 'd').format("MM/DD");
           this.loadTasks();
         },
+
+        getEmployeeDetails: function(){
+          axios.get('http://localhost:9000/employee/get_all')
+            .then(response => {
+              const data = response.data
+              if (data) {
+                this.allEmployeesDetails = []
+                if (data["Employees"]){
+                  this.allEmployeesDetails = [...data["Employees"]]
+                } 
+              }
+            }).catch(error => {
+              console.log(error);
+            })
+        },
+        addProjectMembers: function(){
+          console.log(this.selectedEmployees)
+          this.selectedEmployees.forEach(member => {
+            var data={}
+            data["project_id"]=this.project.project_id
+            if (this.isAddManger){
+              data["project_member_role"]="manager"
+            }else{
+              data["project_member_role"]="member"
+            }
+            var employeeDetails={}
+            employeeDetails=this.allEmployeesDetails.find(emp => member == emp.employee_name)
+            data["employee_id"]=employeeDetails.employee_id
+            this.addProjectMembersApi(data)
+          });
+        },
+        addProjectMembersApi: function(data){
+          axios.post('http://localhost:9000/project/add_project_members', data)
+              .then(response => {
+                this.getProjectMembers()
+              })
+              .catch(function (error) {
+                console.log(error);
+              });
+        },
+        getProjectMembers: function(){
+          const url= 'http://localhost:9000/project/get_project_members/'+ this.project.project_id
+          axios.get(url)
+            .then(response => {
+              const data = response.data
+              if (data) {
+                this.allProjectMembers = []
+                if (data["Project_members"]){
+                  this.allProjectMembers = [...data["Project_members"]]
+                  console.log(this.allProjectMembers)
+                } 
+              }
+            }).catch(error => {
+              console.log(error);
+            })
+        },
+        deleteProjectMember: function(name){
+          member=this.allProjectMembers.find(mem => mem.employee_name == name)
+          console.log(member)
+          url='http://localhost:9000/project/delete_project_members/'+this.project.project_id+'/'+member.employee_id
+          axios.delete(url)
+            .then(response => {
+              console.log(response)
+              alert("deleted")
+              this.getProjectMembers()
+            }).catch(error => {
+              console.log(error);
+            })
+        },
+        
         getProjectTasks: function() {
           url='http://localhost:9000/task/get_project_task/'+this.project.project_id
           axios.get(url)
@@ -977,7 +1046,7 @@
         }
       },
 
-      watch:{
+      watch: {
         'selected_status_filter': {
           handler: function(val){
             this.entries=this.filterEntries(val, this.all_entries, "entry_status")
@@ -1006,6 +1075,7 @@
           handler: function(val){
             this.getProjectTasks()
             this.getAllEntries()
+            this.getProjectMembers()
           }
         },
         'projects_details': {
@@ -1021,9 +1091,22 @@
             this.entries =[...this.all_entries]
           }
         },
-        
-          
-        
+        'allEmployeesDetails': {
+          handler: function(val){
+            this.employees=val.map(emp => emp.employee_name)
+            console.log(this.employees)
+          }
+        }, 
+        'allProjectMembers':{
+          handler: function(val){
+            managers= val.filter(mem => mem.project_member_role == "manager")
+            members= val.filter(mem => mem.project_member_role == "member")
+            this.members=[]
+            this.members=members.map(member => member.employee_name)
+            this.managers=[]
+            this.managers=managers.map(manager => manager.employee_name)
+          }
+        }
       },
       created() {
         var project = JSON.parse(localStorage.getItem('project'));
@@ -1031,6 +1114,7 @@
         this.projects_details = [...project["all details"]]
         console.log(this.projects_details)
         console.log("index: ",this.project_filters_selected_index)
+        this.getEmployeeDetails()
         //this.project = project["all details"][project["view_project_index"]]  
       },
       mounted() {

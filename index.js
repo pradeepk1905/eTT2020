@@ -4,7 +4,7 @@ var app = new Vue({
         vuejsDatepicker
     },
     data: {
-        loading: true,
+        loading: false,
         weeklyDatePicker: '',
         week: '',
         mon: '',
@@ -29,33 +29,26 @@ var app = new Vue({
         total: {},
         currentTask: {
             desc: "",
-            hours: 0
+            hours: 0,
+            status: ""
         },
+        projects: [
+            "Annual Leave",
+            "Casual Leave",
+            "Sick Leave"
+        ],
+        selectedTasks: [],
+        tasks: {},
+        task: {},
         entries: [],
-        selectedTasks: [
-            1, 124, 235
-        ],
-        project: [
-            "Leave",
-        ],
-        tasks: {
-            1: { project: "Leave", title: "Annual Leave" },
-            2: { project: "Leave", title: "Sick Leave" },
-            3: { project: "Leave", title: "Casual Leave" },
-            123: { project: "GMOne", title: "GSO-123 Sample gmone task 1" },
-            124: { project: "GMOne", title: "GSO-124 Sample gmone task 2" },
-            125: { project: "GMOne", title: "GSO-125 Sample gmone task 3" },
-            233: { project: "DCF", title: "DCF-233 Sample dcf  ticket 3" },
-            234: { project: "DCF", title: "DCF-234 Sample dcf  ticket 4" },
-            235: { project: "DCF", title: "DCF-235 Sample dcf  ticket 5" }
-        }
+        entry: {}
     },
     methods: {
-        dateSelected: function (date) {
+        dateSelected: function(date) {
             this.weeklyDatePicker = date;
             this.dateloader();
         },
-        dateloader: function () {
+        dateloader: function() {
             var current = new Date(this.weeklyDatePicker)
             var first = current.getDate() - current.getDay();
             var last = first + 6;
@@ -75,43 +68,63 @@ var app = new Vue({
             for (let i = 0; i < 7; i++) {
                 const d = moment(new Date(this.weeklyDatePicker)).day(i);
                 this.dayEntries[d.format("ddd").toLowerCase()] = {
-                    date: d.format("YYYYMMDD"),
+                    date: d.format("YYYY-MM-DD"),
                     day: d.format("ddd").toLowerCase(),
-                    date_f: d.format("MM/DD")
+                    date_f: d.format("MM/DD"),
+                    date_f2: d.format()
                 };
             }
             this.calcEntries();
         },
-        calcEntries: function () {
+        calcEntries: function() {
             this.days.forEach(d => {
                 this.dayEntries[d].tasks = {};
                 this.selectedTasks.forEach(t => {
                     this.entries.forEach(e => {
-                        if (e.date == this.dayEntries[d].date && e.task == t) {
+                        if (e.entry_date.substring(0, 10) == this.dayEntries[d].date && e.task_id == t) {
                             this.dayEntries[d].tasks[t] = e;
                         }
                     })
                 });
                 this.calculateTotal(d);
             });
+            this.loading = true;
+            console.log(this.dayEntries)
         },
-        openDetailsModal: function (day, tid) {
+        openDetailsModal: function(day, tid) {
             const task = this.getTask(day, tid);
             if (task) {
                 this.currentTask = task;
+                this.currentTask.status = this.getStatus(day, tid);
+                this.currentTask.hours = this.getHours(day, tid);
+                this.currentTask.fromTime = moment(task.entry_start).format("HH:mm");
+                this.currentTask.toTime = moment(task.entry_end).format("HH:mm");
+                //console.log(this.currentTask.fromTime, this.currentTask.toTime)
+                this.$forceUpdate();
                 new bootstrap.Modal(document.getElementById('exampleModal'), {}).show();
             }
         },
-        getTask: function (day, tid) {
+        getTask: function(day, tid) {
             return (this.dayEntries[day].tasks && this.dayEntries[day].tasks[tid]) ? this.dayEntries[day].tasks[tid] : undefined;
         },
-        getHours: function (day, tid) {
-            return (this.dayEntries[day].tasks && this.dayEntries[day].tasks[tid]) ? this.dayEntries[day].tasks[tid].hours : 0;
+        getHours: function(day, tid) {
+            if (this.dayEntries[day].tasks && this.dayEntries[day].tasks[tid]) {
+                var mins = this.dayEntries[day].tasks[tid].minutes;
+                var hours = 0.0;
+                hours = mins / 60;
+                if (mins % 60 != 0) {
+                    x = parseFloat((mins % 60) / 60);
+                    hours += x;
+                }
+                return hours;
+            } else {
+                return 0;
+            }
         },
-        getStatus: function (day, tid) {
-            return (this.dayEntries[day].tasks && this.dayEntries[day].tasks[tid]) ? this.dayEntries[day].tasks[tid].status : 'pending';
+        getStatus: function(day, tid) {
+            return (this.dayEntries[day].tasks && this.dayEntries[day].tasks[tid]) ? this.dayEntries[day].tasks[tid].entry_status : 'pending';
         },
-        winWidth: function () {
+        winWidth: function() {
             var w = window.innerWidth;
             if (w < 768) {
                 this.mobileView = true;
@@ -125,14 +138,13 @@ var app = new Vue({
                 this.mobileView = false;
             }
         },
-        showViewFn: function (day) {
+        showViewFn: function(day) {
             return !this.mobileView || this.showView == day;
         },
-        changeView: function (day) {
+        changeView: function(day) {
             this.showView = day;
         },
         addEvent({ type, target }) {
-            this.loading = false;
             var val = -1;
             if (parseFloat(target.value) >= 0) {
                 val = target.value
@@ -142,93 +154,159 @@ var app = new Vue({
             if (val >= 0) {
                 if (val > 0 && !this.dayEntries[target.dataset.day].tasks[target.dataset.key]) {
                     //create new entry and process
-                    const entry = {
-                        hours: val,
-                        desc: '',
-                        date: this.dayEntries[target.dataset.day].date,
-                        task: target.dataset.key,
-                        fromTime: moment().format("HH:mm"),
-                        toTime: moment().add(val, 'h').format("HH:mm")
-                    };
-                    this.dayEntries[target.dataset.day].tasks[target.dataset.key] = entry;
-                    this.entries.push(entry);
+                    this.entry.task_id = parseInt(target.dataset.key);
+                    this.entry.employee_id = 111;
+                    this.entry.entry_date = this.dayEntries[target.dataset.day].date_f2;
+                    this.entry.entry_start = moment().format();
+                    this.entry.entry_end = moment().add(val, 'hours').format();
+                    this.entry.minutes = val * 60;
+                    this.entry.entry_status = "pending";
+                    this.createEntry();
                 } else if (val >= 0 && this.dayEntries[target.dataset.day].tasks[target.dataset.key]) {
                     //update existing entry
-                    this.dayEntries[target.dataset.day].tasks[target.dataset.key].hours = val;
-                    this.entries.forEach((e, index, object) => {
-                        if (e.task == target.dataset.key && e.date == this.dayEntries[target.dataset.day].date) {
-                            if (val == 0) {
-                                object.splice(index, 1);
-                                this.dayEntries[target.dataset.day].tasks[target.dataset.key] = undefined;
-                            } else {
-                                e.hours = val;
-                                e.fromTime = moment().format("HH:mm");
-                                e.toTime = moment(e.fromTime, "HH:mm").add(val, 'h').format("HH:mm")
-                            }
-                        }
-                    });
+                    this.dayEntries[target.dataset.day].tasks[target.dataset.key].minutes = val * 60;
+                    this.dayEntries[target.dataset.day].tasks[target.dataset.key].entry_start = moment().format();
+                    this.dayEntries[target.dataset.day].tasks[target.dataset.key].entry_end = moment().add(val, 'hours').format();
+
+                    this.entry.entry_id = this.dayEntries[target.dataset.day].tasks[target.dataset.key].entry_id;
+                    this.entry.task_id = parseInt(target.dataset.key);
+                    this.entry.employee_id = this.dayEntries[target.dataset.day].tasks[target.dataset.key].employee_id;
+                    this.entry.entry_date = this.dayEntries[target.dataset.day].date_f2;
+                    this.entry.entry_start = moment().format();
+                    this.entry.entry_end = moment().add(val, 'hours').format();
+                    this.entry.minutes = val * 60;
+                    this.entry.entry_status = "pending";
+                    this.updateEntry(this.entry.entry_id);
                 }
+                this.$forceUpdate();
                 this.calculateTotal(target.dataset.day);
             }
         },
-        addModalEvent: function () {
+        addModalEvent: function() {
+            this.loading = false;
             this.entries.forEach(e => {
-                if (e.date == this.currentTask.date && e.task == this.currentTask.task) {
-                    e = this.currentTask;
-                    e.toTime = moment(e.fromTime, "HH:mm").add(e.hours, 'h').format("HH:mm")
+                if (e.entry_date == this.currentTask.entry_date && e.task_id == this.currentTask.task_id) {
+                    this.currentTask.toTime = moment(this.currentTask.fromTime, "HH:mm").add(this.currentTask.hours, 'h').format("HH:mm")
+                    e.description = this.currentTask.description;
+                    e.minutes = this.currentTask.hours * 60;
+                    e.entry_status = this.currentTask.status;
+
+                    this.entry.entry_id = e.entry_id
+                    this.entry.task_id = e.task_id;
+                    this.entry.employee_id = e.employee_id;
+                    this.entry.entry_date = e.entry_date;
+                    this.entry.entry_start = moment(e.entry_date).set({ 'hour': this.currentTask.fromTime.substring(0, 2), 'minute': this.currentTask.fromTime.substring(3, 5) }).format();
+                    this.entry.entry_end = moment(e.entry_date).set({ 'hour': this.currentTask.toTime.substring(0, 2), 'minute': this.currentTask.toTime.substring(3, 5) }).format();
+                    this.entry.description = this.currentTask.description;
+                    this.entry.minutes = this.currentTask.hours * 60;
+                    this.entry.entry_status = this.currentTask.status;
+                    this.updateEntry(e.entry_id);
                 }
             });
+            this.$forceUpdate();
             this.dateloader();
         },
-        openTasksModal: function () {
+        openTasksModal: function() {
             new bootstrap.Modal(document.getElementById('tasksModal'), {}).show();
         },
-        calculateTotal: function (day) {
+        calculateTotal: function(day) {
             var data = JSON.parse(JSON.stringify(this.dayEntries));
             var total = 0.0;
-            Object.keys(data[day].tasks).forEach(function (key) {
-                if (parseFloat(data[day].tasks[key].hours) > 0)
-                    total = +(total + parseFloat(data[day].tasks[key].hours));
+            Object.keys(data[day].tasks).forEach(function(key) {
+                var mins = data[day].tasks[key].minutes;
+                var hours = 0.0;
+                hours = mins / 60;
+                if (mins % 60 != 0) {
+                    x = parseFloat((mins % 60) / 60);
+                    hours += x;
+                }
+                if (parseFloat(hours) > 0) {
+                    total = +(total + parseFloat(hours));
+                }
             });
             var md = moment.duration(total, 'hours');
             var s = (md._data.hours > 0) ? md._data.hours + "h " : "";
             s = s.concat((md._data.minutes > 0) ? md._data.minutes + "m " : "");
             this.total[day] = s;
             this.$forceUpdate();
-            localStorage.setItem("dayEntries", JSON.stringify(data));
-            localStorage.setItem("entries", JSON.stringify(this.entries));
-            this.loading = false;
         },
-        showTask: function (p, tid, t) {
-            return t.project == p && !this.selectedTasks.includes(+tid);
-        },
-        addTask: function (tid, t) {
-            this.selectedTasks.push(tid);
+        addTask: function(t) {
+            this.task.ticket_id = "Leave ticket";
+            this.task.summary = t;
+            this.task.task_start_date = moment().format();
+            this.task.task_end_date = moment().add(9, 'h').format();
+            this.task.task_estimated_minutes = 540;
+            this.task.project_id = 1;
+            this.task.project = "Leave";
+            this.task.assignees = ["Aswanth"]
+
+            axios.post('http://localhost:9000/task/add_task', this.task)
+                .then(response => {
+                    this.tasks = {}
+                    this.selectedTasks = []
+                    this.getEmployeeTask()
+                    console.log(response)
+                }).catch(error => { console.log(error); });
             this.$forceUpdate();
-            bootstrap.Modal.getInstance(document.getElementById('tasksModal')).hide()
+            bootstrap.Modal.getInstance(document.getElementById('tasksModal')).hide();
+        },
+        createEntry: function() {
+            axios.post('http://localhost:9000/entry/add_entry', this.entry)
+                .then(response => {
+                    console.log(response)
+                    this.getEmployeeEntry();
+                }).catch(error => { console.log(error); });
+        },
+        updateEntry: function(entryid) {
+            axios.put('http://localhost:9000/entry/update_entry/' + entryid, this.entry)
+                .then(response => {
+                    console.log(response)
+                }).catch(error => { console.log(error); });
+        },
+        getEmployeeEntry: function() {
+            axios.get('http://localhost:9000/entry/get_employee_entry/' + 111)
+                .then(response => {
+                    if (response.data.Entries != null) {
+                        response.data.Entries.forEach(r => {
+                            this.entries[r.entry_id] = r
+                        })
+                    }
+                    this.dateloader();
+                }).catch(error => { console.log(error); });
+        },
+        getEmployeeTask: function() {
+            axios.get('http://localhost:9000/task/get_employee_task/' + 111)
+                .then(response => {
+                    if (response.data.Tasks != null) {
+                        response.data.Tasks.forEach(r => {
+                            this.tasks[r.task_id] = r
+                            this.selectedTasks.push(r.task_id)
+                        })
+                    }
+                    this.dateloader();
+                }).catch(error => { console.log(error); });
         }
     },
     mounted() {
-        if (localStorage.getItem("entries") == undefined) {
-            this.entries = [
-                {
-                    date: moment(new Date()).format("YYYYMMDD"), hours: 8, desc: "", task: 1,
-                    fromTime: moment("09:00", "HH:mm").format("HH:mm"), toTime: moment("09:00", "HH:mm").add(8, 'h').format("HH:mm")
-                },
-                {
-                    date: moment(new Date()).subtract(1, 'd').format("YYYYMMDD"), hours: 3.5, desc: "", task: 124, status: 'rejected',
-                    fromTime: moment("09:00", "HH:mm").format("HH:mm"), toTime: moment("09:00", "HH:mm").add(3.5, 'h').format("HH:mm")
-                },
-                {
-                    date: moment(new Date()).add(1, 'd').format("YYYYMMDD"), hours: 4.5, desc: "", task: 235, status: 'approved',
-                    fromTime: moment("09:00", "HH:mm").format("HH:mm"), toTime: moment("09:00", "HH:mm").add(4.5, 'h').format("HH:mm")
+        axios.get('http://localhost:9000/task/get_employee_task/' + 111)
+            .then(response => {
+                if (response.data.Tasks != null) {
+                    response.data.Tasks.forEach(r => {
+                        this.tasks[r.task_id] = r
+                        this.selectedTasks.push(r.task_id)
+                    })
                 }
-            ];
-        } else {
-            this.entries = JSON.parse(localStorage.getItem("entries"));
-        }
-        this.weeklyDatePicker = moment(new Date()).format("YYYY-MM-DD")
-        this.dateloader()
+            }).catch(error => { console.log(error); });
+        axios.get('http://localhost:9000/entry/get_employee_entry/' + 111)
+            .then(response => {
+                if (response.data.Entries != null) {
+                    response.data.Entries.forEach(r => {
+                        this.entries[r.entry_id] = r
+                    })
+                }
+                this.weeklyDatePicker = moment(new Date()).format("YYYY-MM-DD");
+                this.dateloader();
+            }).catch(error => { console.log(error); });
         this.winWidth()
     }
 });

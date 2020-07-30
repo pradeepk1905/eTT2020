@@ -794,6 +794,13 @@
         },
         addProjectMembers: function(){
           console.log(this.selectedEmployees)
+          bootstrap.Modal.getInstance(document.getElementById('exampleModal1')).hide();
+          // if (this.isAddManger){
+          //   bootstrap.Modal.getInstance(document.getElementById('exampleModal1')).hide();
+          // }else{
+          //   bootstrap.Modal.getInstance(document.getElementById('exampleModal')).hide();
+          // }
+          
           this.selectedEmployees.forEach(member => {
             var data={}
             data["project_id"]=this.project.project_id
@@ -814,6 +821,7 @@
             buttons: false,
             timer: 2000,
           })
+          this.selectedEmployees=[]
 
         },
         addProjectMembersApi: function(data){
@@ -930,7 +938,6 @@
           //       moment(t.task_end_date).isSameOrBefore(this.endDate))
 
           this.fetched_project_tasks.forEach(t =>{
-            console.log("all_project_tasks",t)
             if (
               (moment(t.task_start_date).isSameOrBefore(this.endDate) &&
               moment(t.task_end_date).isSameOrAfter(this.startDate))
@@ -942,15 +949,16 @@
                 t.grid['grid-column-end'] = 8; else t.grid['grid-column-end'] = +moment(t.task_end_date).day() + 2;
               this.tasks.push(t);
               this.members.forEach(member => {
-                  if(!this.membersTasks[member]) this.membersTasks[member] = [];
+                  if(!this.membersTasks[member]){
+                    this.membersTasks[member] = [];
+                  } 
                   if (t.assignees.includes(member)) {
-                    console.log("pushed")
                     this.membersTasks[member].push(t);
                   }
               });
             }
           });
-          console.log(this.tasks)
+          console.log("updated: ",this.tasks)
           // this.allTasks.forEach(t => {
           //   if ((moment(t.startDate).isSameOrAfter(this.startDate) &&
           //     moment(t.startDate).isSameOrBefore(this.endDate)) ||
@@ -1231,6 +1239,7 @@
           handler: function(val){
             this.project_members_filters=["All"]
             this.project_members_filters = this.project_members_filters.concat(val)
+            this.loadTasks()
           }
         },
         'project_filters_selected_index': {

@@ -2,247 +2,168 @@
 <html lang="en" class="h-100">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="">
-  <title>Timetracker - Weekly report</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <title>Timetracker - Weekly report</title>
 
-  <!-- Bootstrap core CSS -->
-  <link href="assets/dist/css/bootstrap.min.css" rel="stylesheet">
-
-
-  <style>
-    .bd-placeholder-img {
-      font-size: 1.125rem;
-      text-anchor: middle;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-    }
-
-    @media (min-width: 768px) {
-      .bd-placeholder-img-lg {
-        font-size: 3.5rem;
-      }
-    }
-
-    tr.projectRow {
-      background: #b9c9ef;
-    }
-
-    .activityRow>th {
-      width: 50%;
-    }
-  </style>
+    <!-- Bootstrap core CSS -->
+    <link href="assets/dist/css/bootstrap.min.css" rel="stylesheet">
 
 
-  <!-- Custom styles for this template -->
-  <link href="styles.css" rel="stylesheet">
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+        
+        tr.projectRow {
+            background: #b9c9ef;
+        }
+        
+        .activityRow>th {
+            width: 50%;
+        }
+    </style>
+
+
+    <!-- Custom styles for this template -->
+    <link href="styles.css" rel="stylesheet">
 </head>
 
 <body class="d-flex flex-column h-100">
 
-  <header>
-    <!-- Fixed navbar -->
-    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="index.html">Timetracker</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
-          aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+    <header>
+        <!-- Fixed navbar -->
+        <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="index.html">Timetracker</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarCollapse">
-          <ul class="navbar-nav mr-auto mb-2 mb-md-0">
-            <li class="nav-item active">
-              <a class="nav-link" aria-current="page" href="index.html">Home</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="management.html">Management</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Report</a>
-            </li>
-          </ul>
-          <form class="d-flex">
-            <a class="nav-link" href="index.html">Logout</a>
-          </form>
-        </div>
-      </div>
-    </nav>
-  </header>
+                <div class="collapse navbar-collapse" id="navbarCollapse">
+                    <ul class="navbar-nav mr-auto mb-2 mb-md-0">
+                        <li class="nav-item active">
+                            <a class="nav-link" aria-current="page" href="index.html">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="management.html">Management</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Report</a>
+                        </li>
+                    </ul>
+                    <form class="d-flex">
+                        <a class="nav-link" href="index.html">Logout</a>
+                    </form>
+                </div>
+            </div>
+        </nav>
+    </header>
 
-  <!-- Begin page content -->
-  <main class="flex-shrink-0">
-    <div class="container">
-      <div class="row mt-5">
-        <div class="col">
-          <h1>Weekly report</h1>
+    <!-- Begin page content -->
+    <main class="flex-shrink-0">
+        <div class="container" id="report">
+            <div class="row mt-5">
+                <div class="col">
+                    <h1>Weekly report</h1>
+                </div>
+                <div class="col text-right">
+                    <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+                        <div class="btn-group" role="group">
+                            <button id="btnGroupDrop1" type="button" class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                              This week
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                <li><button type="button" class="dropdown-item" v-on:click="previousweek">Last week</button></li>
+                                <li><button type="button" class="dropdown-item" v-on:click="nextweek">Next week</button></li>
+                            </ul>
+                        </div>
+                        <button type="button" class="btn btn-outline-secondary" v-on:click="previousweek"><</button>
+                        <button type="button" class="btn btn-outline-secondary" v-on:click="nextweek">></button>
+                    </div>
+                </div>
+            </div>
+            <div class="card mt-3">
+                <div class="card-body">
+                    <div class="btn-group" role="group">
+                        <div class="btn-group" role="group">
+                            <select v-model="selectedproject" class="form-select">
+                              <option selected>Project</option>
+                              <option v-for="project in dropdownprojects" :key="project.id">{{project.name}}</option>
+                            </select>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <select v-model="selectedtask" class="form-select">
+                              <option selected>Ticket</option>
+                              <option v-for="task in dropdowntasks" :key="task.id">{{task.name}}</option>
+                            </select>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <select v-model="selectedemployee" class="form-select">
+                              <option selected>Employee</option>
+                            <option v-for="employee in dropdownemployees" :key="employee.id">{{employee.name}}</option>
+                          </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" @click="filter">Filter</button>
+                </div>
+            </div>
+            <table class="table table-hover" v-if="!loading">
+                <thead>
+                    <tr>
+                        <th colspan="8">Total: <b>{{total}}</b> <a class="float-right">Export</a></th>
+                    </tr>
+                    <tr>
+                        <th class="align-middle" scope="col">User / Project</th>
+                        <th class="align-middle text-center" scope="col" v-for="(value, name, index) in days">
+                            {{dayEntries[value].day}}<br>{{dayEntries[value].date_f}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="projectRow">
+                        <th>{{selectedemployee}}</th>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr class="activityRow" v-for="t in selectedTasks">
+                        <th>{{tasks[t].project}}: {{tasks[t].summary}}</th>
+                        <td class="align-middle text-center" v-for="(value, name, index) in days">
+                            {{edit(getHours(value,t))}}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-        <div class="col text-right">
-          <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
-            <div class="btn-group" role="group">
-              <button id="btnGroupDrop1" type="button" class="btn btn-outline-secondary dropdown-toggle"
-                data-toggle="dropdown" aria-expanded="false">
-                This week
-              </button>
-              <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                <li><a class="dropdown-item" href="#">Last week</a></li>
-                <li><a class="dropdown-item" href="#">Next week</a></li>
-              </ul>
-            </div>
-            <button type="button" class="btn btn-outline-secondary">
-              </button> <button type="button" class="btn btn-outline-secondary">>
-            </button>
-          </div>
+    </main>
+    <footer class="footer mt-auto py-3 bg-light">
+        <div class="container">
+            <span class="text-muted">Copyright</span>
         </div>
-      </div>
-      <div class="card mt-3">
-        <div class="card-body">
-          <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
-            <div class="btn-group" role="group">
-              <button id="btnGroupDrop1" type="button" class="btn btn-outline-secondary dropdown-toggle"
-                data-toggle="dropdown" aria-expanded="false">
-                Project
-              </button>
-              <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                <li><a class="dropdown-item" href="#">DCFMS</a></li>
-                <li><a class="dropdown-item" href="#">GMOne</a></li>
-              </ul>
-            </div>
-            <div class="btn-group" role="group">
-              <button id="btnGroupDrop2" type="button" class="btn btn-outline-secondary dropdown-toggle"
-                data-toggle="dropdown" aria-expanded="false">
-                Ticket
-              </button>
-              <ul class="dropdown-menu" aria-labelledby="btnGroupDrop2">
-                <li><a class="dropdown-item" href="#">DCF-123 Prepare login screen wireframes</a></li>
-                <li><a class="dropdown-item" href="#">DCF-184 Prepare SIT test cases for login</a></li>
-              </ul>
-            </div>
-            <div class="btn-group" role="group">
-              <button id="btnGroupDrop" type="button" class="btn btn-outline-secondary dropdown-toggle"
-                data-toggle="dropdown" aria-expanded="false">
-                Employee
-              </button>
-              <ul class="dropdown-menu" aria-labelledby="btnGroupDrop">
-                <li><a class="dropdown-item" href="#">Ganesh</a></li>
-                <li><a class="dropdown-item" href="#">Satish</a></li>
-                <li><a class="dropdown-item" href="#">Ebby</a></li>
-              </ul>
-            </div>
-          </div>
-          <button class="btn btn-primary">Filter</button>
-        </div>
-      </div>
-      <table class="table table-hover">
-        <thead>
-          <tr>
-            <th colspan="8">Total: <b>200:00</b> <a class="float-right">Export</a></th>
-          </tr>
-          <tr>
-            <th class="align-middle" scope="col">User / Project</th>
-            <th class="align-middle text-center" scope="col">Sun<br>28/06</th>
-            <th class="align-middle text-center" scope="col">Mon<br>29/06</th>
-            <th class="align-middle text-center" scope="col">Tue<br>30/06</th>
-            <th class="align-middle text-center" scope="col">Wed<br>01/07</th>
-            <th class="align-middle text-center" scope="col">Thu<br>02/07</th>
-            <th class="align-middle text-center" scope="col">Fri<br>03/07</th>
-            <th class="align-middle text-center" scope="col">Sat<br>04/07</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="projectRow">
-            <th>Ebby</th>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-          </tr>
-          <tr class="activityRow">
-            <th>DCFMS</th>
-            <td class="align-middle text-center"></td>
-            <td class="align-middle text-center">3:00</td>
-            <td class="align-middle text-center">4:00</td>
-            <td class="align-middle text-center"></td>
-            <td class="align-middle text-center"></td>
-            <td class="align-middle text-center"></td>
-            <td class="align-middle text-center"></td>
-          </tr>
-          <tr class="projectRow">
-            <th>Ganesh</th>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-          </tr>
-          <tr class="activityRow">
-            <th>Symphony</th>
-            <td class="align-middle text-center"></td>
-            <td class="align-middle text-center"></td>
-            <td class="align-middle text-center">8:00</td>
-            <td class="align-middle text-center"></td>
-            <td class="align-middle text-center">8:00</td>
-            <td class="align-middle text-center"></td>
-            <td class="align-middle text-center"></td>
-          </tr>
-          <tr class="activityRow">
-            <th>Webarena</th>
-            <td class="align-middle text-center"></td>
-            <td class="align-middle text-center">8:00</td>
-            <td class="align-middle text-center"></td>
-            <td class="align-middle text-center"></td>
-            <td class="align-middle text-center"></td>
-            <td class="align-middle text-center">8:00</td>
-            <td class="align-middle text-center"></td>
-          </tr>
-          <tr class="projectRow">
-            <th>Satish</th>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-          </tr>
-          <tr class="activityRow">
-            <th>DCFMS</th>
-            <td class="align-middle text-center"></td>
-            <td class="align-middle text-center"></td>
-            <td class="align-middle text-center">8:00</td>
-            <td class="align-middle text-center">8:00</td>
-            <td class="align-middle text-center">8:00</td>
-            <td class="align-middle text-center">8:00</td>
-            <td class="align-middle text-center"></td>
-          </tr>
-          <tr class="activityRow">
-            <th>Leave</th>
-            <td class="align-middle text-center"></td>
-            <td class="align-middle text-center">8:00</td>
-            <td class="align-middle text-center"></td>
-            <td class="align-middle text-center"></td>
-            <td class="align-middle text-center"></td>
-            <td class="align-middle text-center"></td>
-            <td class="align-middle text-center"></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </main>
-  <footer class="footer mt-auto py-3 bg-light">
-    <div class="container">
-      <span class="text-muted">Copyright</span>
-    </div>
-  </footer>
+    </footer>
 
-  <script src="assets/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Vue js -->
+    <script src="assets/dist/js/vue.js"></script>
+    <!-- <script src="assets/dist/js/vue-router.min.js"></script> -->
+    <script src="assets/dist/js/axios.min.js"></script>
+    <script src="assets/dist/js/moment.js"></script>
+    <script src="assets/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="report.js"></script>
 </body>
 
 </html>

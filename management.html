@@ -28,6 +28,16 @@
     .calPicker{
       display: none;
     }
+    .loader{
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      transform: -webkit-translate(-50%, -50%);
+      transform: -moz-translate(-50%, -50%);
+      transform: -ms-translate(-50%, -50%);
+      color:darkred;
+    }
   </style>
 
 
@@ -70,143 +80,154 @@
   <main class="flex-shrink-0">
     <div class="container">
       <div id="ProjectManagementTable">
-        <div class="row mt-5">
-          <div class="col">
-            <h1>Project Management</h1>
+        <div v-if="!getRowsApiLoaded" class="loader">
+          <div  class="d-flex justify-content-center">
+            <div class="spinner-border mt-20" role="status">
+              <span class="sr-only ">Loading...</span>
+            </div>
           </div>
-          <div class="col text-right"><button class="btn btn-sm btn-outline-primary"
-              @click="createForm">Create</button></div>
         </div>
-        <div>
-          <!-- table -->
-          <table class="mt-4 table table-hover">
-            <thead>
-              <tr>
-                <th scope=" col">#</th>
-                <th scope="col">Name</th>
-                <th scope="col">Code</th>
-                <th scope="col">Start Date</th>
-                <th scope="col">End Date</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for='(row,index) in rows' :key='row.project_id'>
-                <th scope="row">{{ index+1 }}</th>
-                <td>{{ row.project_name }}</td>
-                <td>{{ row.project_code }}</td>
-                <td>{{ row.project_start_date | formatDate }}</td>
-                <td>{{ row.project_end_date | formatDate}}</td>
-                <td><a @click="viewProjectDetails(index)" href="#"><svg  class="bi bi-eye" width="1em" height="1em" viewBox="0 0 16 16"
-                  fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                  <path fill-rule="evenodd"
-                    d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.134 13.134 0 0 0 1.66 2.043C4.12 11.332 5.88 12.5 8 12.5c2.12 0 3.879-1.168 5.168-2.457A13.134 13.134 0 0 0 14.828 8a13.133 13.133 0 0 0-1.66-2.043C11.879 4.668 10.119 3.5 8 3.5c-2.12 0-3.879 1.168-5.168 2.457A13.133 13.133 0 0 0 1.172 8z" />
-                  <path fill-rule="evenodd"
-                    d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z" />
-                </svg></a><a class="ml-2" @click="fillForm(index)"  style="cursor: pointer;"><svg
-                  class="bi bi-pencil-square" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor"
-                  xmlns="http://www.w3.org/2000/svg">
-                  <path
-                    d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-                  <path fill-rule="evenodd"
-                    d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
-                </svg></a></td>
-              </tr>
-            </tbody>
-          </table>
-          <!-- modal -->
-          <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="exampleModalLabel">Create Project</h5>
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                  </button>
-                </div>
-  
-                <div class="modal-body">
-                  <div class="mb-3">
-                    <label for="exampleInputEmail1" class="form-label">Name</label>
-                    <input type="text" v-model="modal.project_name" :placeholder="modal.project_name" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
-                    <!-- <div id="timeHelp" class="form-text">Time spent in hours 3 / 3.5</div> -->
+        
+        <div v-if="getRowsApiLoaded">
+          <div class="row mt-5">
+            <div class="col">
+              <h1>Project Management</h1>
+            </div>
+            <div class="col text-right"><button class="btn btn-sm btn-outline-primary"
+                @click="createForm">Create</button></div>
+          </div>
+          <div>
+            <!-- table -->
+            <table class="mt-4 table table-hover">
+              <thead>
+                <tr>
+                  <th scope=" col">#</th>
+                  <th scope="col">Name</th>
+                  <th scope="col">Code</th>
+                  <th scope="col">Start Date</th>
+                  <th scope="col">End Date</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for='(row,index) in rows' :key='row.project_id'>
+                  <th scope="row">{{ index+1 }}</th>
+                  <td>{{ row.project_name }}</td>
+                  <td>{{ row.project_code }}</td>
+                  <td>{{ row.project_start_date | formatDate }}</td>
+                  <td>{{ row.project_end_date | formatDate}}</td>
+                  <td><a @click="viewProjectDetails(index)" href="#"><svg  class="bi bi-eye" width="1em" height="1em" viewBox="0 0 16 16"
+                    fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd"
+                      d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.134 13.134 0 0 0 1.66 2.043C4.12 11.332 5.88 12.5 8 12.5c2.12 0 3.879-1.168 5.168-2.457A13.134 13.134 0 0 0 14.828 8a13.133 13.133 0 0 0-1.66-2.043C11.879 4.668 10.119 3.5 8 3.5c-2.12 0-3.879 1.168-5.168 2.457A13.133 13.133 0 0 0 1.172 8z" />
+                    <path fill-rule="evenodd"
+                      d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z" />
+                  </svg></a><a class="ml-2" @click="fillForm(index)"  style="cursor: pointer;"><svg
+                    class="bi bi-pencil-square" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                    <path fill-rule="evenodd"
+                      d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
+                  </svg></a></td>
+                </tr>
+              </tbody>
+            </table>
+            <!-- modal -->
+            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Create Project</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
                   </div>
-                  <div class="mb-3">
-                    <label for="exampleInputPassword1" class="form-label">Project Id</label>
-                    <input type="text" v-model="modal.project_id" :placeholder="modal.project_id" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
+    
+                  <div class="modal-body">
+                    <div class="mb-3">
+                      <label for="exampleInputEmail1" class="form-label">Name</label>
+                      <input type="text" v-model="modal.project_name" :placeholder="modal.project_name" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
+                      <!-- <div id="timeHelp" class="form-text">Time spent in hours 3 / 3.5</div> -->
+                    </div>
+                    <div class="mb-3">
+                      <label for="exampleInputPassword1" class="form-label">Project Id</label>
+                      <input type="text" v-model="modal.project_id" :placeholder="modal.project_id" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
+                    </div>
+                    <div class="mb-3">
+                      <label for="exampleInputPassword1" class="form-label">Code</label>
+                      <input type="text" v-model="modal.project_code" :placeholder="modal.project_code" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
+                    </div>
+                    <div class="mb-3">
+                      <label for="exampleInputPassword1" class="form-label">Client</label>
+                      <select v-model="modal.client" class="form-control" id="exampleFormControlSelect1">
+                        <option v-for="client in clients" :key="client.id"> {{ client.name }}</option>
+                      </select>
+                    </div>
+                    <!-- <div class="mb-3">
+                      <label for="exampleInputPassword1" class="form-label">Is project billable</label>
+                      <select v-model="modal.project_type" class="form-control" id="exampleFormControlSelect1">
+                        <option v-for="(condition,index) in project_billables" :key="index">{{ condition }}</option>
+                      </select>
+                    </div> -->
+                    
+                    <div class="mb-3">
+                      <label for="exampleInputPassword1" class="form-label">Is project billable</label>
+                      <input type="checkbox" v-model="modal.project_is_billable" class="custom-control-input" id="customSwitch1">
+                    </div>
+                    <div class="mb-3">
+                      <label for="exampleInputPassword1" class="form-label">Sub division</label>
+                      <select v-model="modal.sub_division" class="form-control" id="exampleFormControlSelect1">
+                        <option v-for="sub_division in sub_divisions" :key="sub_division.id">{{ sub_division.name }}</option>
+                      </select>
+                    </div>
+                    <div class="mb-3">
+                      <label for="exampleInputPassword1" class="form-label">Type</label>
+                      <select v-model="modal.project_type" class="form-control" id="exampleFormControlSelect1">
+                        <option v-for="project_type in project_types" :key="project_type.id">{{ project_type.name }}</option>
+                      </select>
+                    </div>
+                    <div class="mb-3">
+                      <label for="exampleInputPassword1" class="form-label">Stage</label>
+                      <select v-model="modal.project_stage" class="form-control" id="exampleFormControlSelect1">
+                        <option v-for="project_stage in project_stages" :key="project_stage.id">{{ project_stage.name }}</option>
+                      </select>
+                    </div>
+                    <div class="mb-3">
+                      <label for="exampleInputPassword1" class="form-label">Start Date</label>
+                      <input type="date" v-model="modal.project_start_date" :placeholder="modal.project_start_date" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
+                    </div>
+                    <div class="mb-3">
+                      <label for="exampleInputPassword1" class="form-label">End Date</label>
+                      <input type="date" v-model="modal.project_end_date" :placeholder="modal.project_end_date" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
+                    </div>
+                    <div class="mb-3">
+                      <label for="exampleInputPassword1" class="form-label">Planned Start Date</label>
+                      <input type="date" v-model="modal.project_planned_start" :placeholder="modal.project_planned_start" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
+                    </div>
+                    <div class="mb-3">
+                      <label for="exampleInputPassword1" class="form-label">Planned End Date</label>
+                      <input type="date" v-model="modal.project_planned_end" :placeholder="modal.project_planned_end" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
+                    </div>
+                    <div class="mb-3">
+                      <label for="exampleInputPassword1" class="form-label">Actual Start Date</label>
+                      <input type="date" v-model="modal.project_actual_start" :placeholder="modal.project_actual_start" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
+                    </div>
+                    <div class="mb-3">
+                      <label for="exampleInputPassword1" class="form-label">Actual End Date</label>
+                      <input type="date" v-model="modal.project_actual_end" :placeholder="modal.project_actual_start" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
+                    </div>
                   </div>
-                  <div class="mb-3">
-                    <label for="exampleInputPassword1" class="form-label">Code</label>
-                    <input type="text" v-model="modal.project_code" :placeholder="modal.project_code" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
+                  <div class="modal-footer">
+                    <button type="button" @click="updateForm = false" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" @click="submitForm" class="btn btn-primary">Save changes</button>
                   </div>
-                  <div class="mb-3">
-                    <label for="exampleInputPassword1" class="form-label">Client</label>
-                    <select v-model="modal.client" class="form-control" id="exampleFormControlSelect1">
-                      <option v-for="client in clients" :key="client.id"> {{ client.name }}</option>
-                    </select>
-                  </div>
-                  <!-- <div class="mb-3">
-                    <label for="exampleInputPassword1" class="form-label">Is project billable</label>
-                    <select v-model="modal.project_type" class="form-control" id="exampleFormControlSelect1">
-                      <option v-for="(condition,index) in project_billables" :key="index">{{ condition }}</option>
-                    </select>
-                  </div> -->
-                  
-                  <div class="mb-3">
-                    <label for="exampleInputPassword1" class="form-label">Is project billable</label>
-                    <input type="checkbox" v-model="modal.project_is_billable" class="custom-control-input" id="customSwitch1">
-                  </div>
-                  <div class="mb-3">
-                    <label for="exampleInputPassword1" class="form-label">Sub division</label>
-                    <select v-model="modal.sub_division" class="form-control" id="exampleFormControlSelect1">
-                      <option v-for="sub_division in sub_divisions" :key="sub_division.id">{{ sub_division.name }}</option>
-                    </select>
-                  </div>
-                  <div class="mb-3">
-                    <label for="exampleInputPassword1" class="form-label">Type</label>
-                    <select v-model="modal.project_type" class="form-control" id="exampleFormControlSelect1">
-                      <option v-for="project_type in project_types" :key="project_type.id">{{ project_type.name }}</option>
-                    </select>
-                  </div>
-                  <div class="mb-3">
-                    <label for="exampleInputPassword1" class="form-label">Stage</label>
-                    <select v-model="modal.project_stage" class="form-control" id="exampleFormControlSelect1">
-                      <option v-for="project_stage in project_stages" :key="project_stage.id">{{ project_stage.name }}</option>
-                    </select>
-                  </div>
-                  <div class="mb-3">
-                    <label for="exampleInputPassword1" class="form-label">Start Date</label>
-                    <input type="date" v-model="modal.project_start_date" :placeholder="modal.project_start_date" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
-                  </div>
-                  <div class="mb-3">
-                    <label for="exampleInputPassword1" class="form-label">End Date</label>
-                    <input type="date" v-model="modal.project_end_date" :placeholder="modal.project_end_date" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
-                  </div>
-                  <div class="mb-3">
-                    <label for="exampleInputPassword1" class="form-label">Planned Start Date</label>
-                    <input type="date" v-model="modal.project_planned_start" :placeholder="modal.project_planned_start" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
-                  </div>
-                  <div class="mb-3">
-                    <label for="exampleInputPassword1" class="form-label">Planned End Date</label>
-                    <input type="date" v-model="modal.project_planned_end" :placeholder="modal.project_planned_end" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
-                  </div>
-                  <div class="mb-3">
-                    <label for="exampleInputPassword1" class="form-label">Actual Start Date</label>
-                    <input type="date" v-model="modal.project_actual_start" :placeholder="modal.project_actual_start" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
-                  </div>
-                  <div class="mb-3">
-                    <label for="exampleInputPassword1" class="form-label">Actual End Date</label>
-                    <input type="date" v-model="modal.project_actual_end" :placeholder="modal.project_actual_start" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
-                  </div>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" @click="updateForm = false" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                  <button type="button" @click="submitForm" class="btn btn-primary">Save changes</button>
                 </div>
               </div>
             </div>
           </div>
         </div>
+        
       </div>
       
   </main>
@@ -221,10 +242,12 @@
   <script src="assets/dist/js/vue.js"></script>
   <script src="assets/dist/js/axios.min.js"></script>
   <script src="assets/dist/js/moment.js"></script>
+  <script src="assets/dist/js/sweetalert.js"></script>
   <script>
     var myTable = new Vue({
         el: '#ProjectManagementTable',
         data: { 
+          getRowsApiLoaded:null,
           response: Object,
           clients:[],
           sub_divisions:[],
@@ -252,6 +275,7 @@
         },
         methods: {
           getRows() {
+            this.getRowsApiLoaded=false
             axios.get('http://localhost:9000/project/get_all')
                     .then(response => {
                       const data = response.data
@@ -260,6 +284,7 @@
                         this.rows = [...data["Projects"]]
                       }
                       console.log(this.rows)
+                      this.getRowsApiLoaded=true
                     }).catch(error => {
                         console.log(error);
                     })
@@ -291,6 +316,7 @@
             this.updateForm=false
             this.emptyModalValues()
             new bootstrap.Modal(document.getElementById('exampleModal'), {}).show();
+
           },
           fillForm(index) {
             const data = this.rows[index]
@@ -340,11 +366,25 @@
               axios.put(url, data)
               .then(response => {
                 this.getRows()
-                alert("updated");
+                //alert("updated");
+                this.$swal({
+                  title: "Updated",
+                  text: "Your changes are applied!",
+                  icon: "success",
+                  buttons: false,
+                  timer: 2000,
+                })
                 
               })
               .catch(function (error) {
                 console.log(error);
+                this.$swal({
+                  title: "Sorry",
+                  text: "There is some problem with updating!",
+                  icon: "error",
+                  buttons: false,
+                  timer: 2000,
+                })
               });
               console.log("update")
             }else{
@@ -353,12 +393,29 @@
               .then(response => {
                 this.getRows()
                 this.emptyModalValues()
-                alert("added");
+                this.$swal({
+                  title: "Added Project",
+                  text: "A new project is created!",
+                  icon: "success",
+                  buttons: false,
+                  timer: 2000,
+                })
               })
               .catch(function (error) {
                 console.log(error);
+                this.$swal({
+                  title: "Sorry",
+                  text: "Project could not be saved!",
+                  icon: "error",
+                  buttons: false,
+                  timer: 2000,
+                })
               });
             }
+            this.showModal=false
+            // bootstrap.Modal(document.getElementById('exampleModal'), {}).toggle();
+            // document.getElementById('exampleModal').modal('hide')
+            // document.getElementById('exampleModal').modal("toggle");
           },
           getIdDropDowns(value,arr) {
             let data = arr.find(element => element.name == value );
@@ -390,7 +447,9 @@
         watch:{
           'modal.project_id': {
             handler: function(val){
-              this.modal.project_id= parseInt(val, 10)
+              if(val){
+                this.modal.project_id= parseInt(val, 10)
+              }
             },
             deep: true
           }

@@ -182,11 +182,23 @@
       max-width: 8rem;
     }
 
+
     .tktInput,
     .tktInput>div>.dateInpt {
       border: none;
       border-bottom: 1px solid lightblue;
       ;
+    }
+
+    .loader{
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      transform: -webkit-translate(-50%, -50%);
+      transform: -moz-translate(-50%, -50%);
+      transform: -ms-translate(-50%, -50%);
+      color:darkred;
     }
   </style>
 </head>
@@ -259,9 +271,18 @@
             aria-selected="false">Entries</a>
         </li>
       </ul>
+
       <div class="tab-content" id="myTabContent">
+        <!-- project details -->
         <div class="tab-pane fade show active p-3" id="overview" role="tabpanel" aria-labelledby="overview-tab">
-          <div class="row">
+          <div v-if="!project ||  !prjectMembersApiLoaded" class="loader">
+            <div  class="d-flex justify-content-center">
+              <div class="spinner-border mt-20" role="status">
+                <span class="sr-only ">Loading...</span>
+              </div>
+            </div>
+          </div>
+          <div v-if="project && prjectMembersApiLoaded" class="row">
             <div class="col">
               <h6>Name</h6>
               <p class="lead">{{ project.project_name }}</p>
@@ -284,8 +305,16 @@
             </div>
           </div>
         </div>
+        <!-- project members -->
         <div class="tab-pane fade p-3" id="members" role="tabpanel" aria-labelledby="members-tab">
-          <div class="row">
+          <div v-if="!project ||  !prjectMembersApiLoaded || !getEmployeeDetailsApiLoaded" class="loader">
+            <div  class="d-flex justify-content-center">
+              <div class="spinner-border mt-20" role="status">
+                <span class="sr-only ">Loading...</span>
+              </div>
+            </div>
+          </div>
+          <div v-if="project && prjectMembersApiLoaded && getEmployeeDetailsApiLoaded" class="row">
             <div class="col">
               <div class="row">
                 <div class="col">
@@ -324,208 +353,228 @@
         </div>
         <!-- tickets -->
         <div class="tab-pane fade p-3" id="tickets" role="tabpanel" aria-labelledby="tickets-tab">
-          <div class="mt-4 row">
-            <div class="col-sm">
-              <h4>
-                Week :
-                <small class="text-muted">{{week}}
-                  <vuejs-datepicker class="pl-1" input-class="calPicker" @selected="dateSelected" format="yyyy-MM-dd"
-                    calendar-button></vuejs-datepicker>
-                </small>
-              </h4>
-            </div>
-            <div class="col-sm text-right">
-              <!-- <button class="btn btn-primary btn-sm" onclick="save()">Save</button> -->
+          <div v-if="!project ||  !getProjectTasksApiLoaded" class="loader">
+            <div  class="d-flex justify-content-center">
+              <div class="spinner-border mt-20" role="status">
+                <span class="sr-only ">Loading...</span>
+              </div>
             </div>
           </div>
-          <table class="table table-hover table-responsive table-sm">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Summary</th>
-                <th>Start Date</th>
-                <th>End Date</th>
-                <th>Estimated Hours</th>
-                <th>Assignees</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="t in tasks">
-                <td>
-                  <div v-show="!t.edit" v-on:click="edit(t)">{{t.ticket_id}}</div>
-                  <div v-show="t.edit"><input style="max-width: 8rem;" type="text" class="tktInput"
-                      v-model="t.ticket_id"></div>
-                </td>
-                <td>
-                  <div v-show="!t.edit" v-on:click="edit(t)">{{t.summary}}</div>
-                  <div v-show="t.edit"><input type="text" class="tktInput" v-model="t.summary"></div>
-                </td>
-                <td>
-                  <div v-show="!t.edit" v-on:click="edit(t)">{{t.task_start_date}}</div>
-                  <div v-show="t.edit">
-                    <vuejs-datepicker input-class="dateInpt" format="yyyy/MM/dd" class="tktInput" v-model="t.task_start_date">
+          <div v-if="project &&  getProjectTasksApiLoaded">
+            <div class="mt-4 row">
+              <div class="col-sm">
+                <h4>
+                  Week :
+                  <small class="text-muted">{{week}}
+                    <vuejs-datepicker class="pl-1" input-class="calPicker" @selected="dateSelected" format="yyyy-MM-dd"
+                      calendar-button></vuejs-datepicker>
+                  </small>
+                </h4>
+              </div>
+              <div class="col-sm text-right">
+                <!-- <button class="btn btn-primary btn-sm" onclick="save()">Save</button> -->
+              </div>
+            </div>
+            <table class="table table-hover table-responsive table-sm">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Summary</th>
+                  <th>Start Date</th>
+                  <th>End Date</th>
+                  <th>Estimated Hours</th>
+                  <th>Assignees</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="t in tasks">
+                  <td>
+                    <div v-show="!t.edit" v-on:click="edit(t)">{{t.ticket_id}}</div>
+                    <div v-show="t.edit"><input style="max-width: 8rem;" type="text" class="tktInput"
+                        v-model="t.ticket_id"></div>
+                  </td>
+                  <td>
+                    <div v-show="!t.edit" v-on:click="edit(t)">{{t.summary}}</div>
+                    <div v-show="t.edit"><input type="text" class="tktInput" v-model="t.summary"></div>
+                  </td>
+                  <td>
+                    <div v-show="!t.edit" v-on:click="edit(t)">{{t.task_start_date}}</div>
+                    <div v-show="t.edit">
+                      <vuejs-datepicker input-class="dateInpt" format="yyyy/MM/dd" class="tktInput" v-model="t.task_start_date">
+                      </vuejs-datepicker>
+                    </div>
+                  </td>
+                  <td>
+                    <div v-show="!t.edit" v-on:click="edit(t)">{{t.task_end_date}}</div>
+                    <div v-show="t.edit">
+                      <vuejs-datepicker input-class="dateInpt" format="yyyy/MM/dd" class="tktInput" v-model="t.task_end_date">
+                      </vuejs-datepicker>
+                    </div>
+                  </td>
+                  <td>
+                    <div v-show="!t.edit" v-on:click="edit(t)">{{t.estimateHours }}</div>
+                    <div v-show="t.edit"><input style="max-width: 3rem;" type="number" class="tktInput"
+                        v-model="t.estimateHours">
+                    </div>
+                  </td>
+                  <td>
+                    <div v-show="!t.edit" v-on:click="edit(t)">{{t.assignees.join(', ')}}</div>
+                    <div v-show="t.edit">
+                      <multiselect class="tktInput" v-model="t.assignees" :options="members" :multiple="true"
+                        :close-on-select="false" :clear-on-select="false" :preserve-search="true" placeholder="assign"
+                        :hide-selected="true">
+                      </multiselect>
+                    </div>
+                  </td>
+                  <td><button class="btn btn-sm btn-outline-success" v-show="t.edit"
+                      v-on:click="saveTicket(t)">Done</button><button v-show="!t.edit"
+                      class="btn btn-sm btn-outline-danger" @click="deleteTicket(t)">Delete</button></td>
+                </tr>
+                <tr>
+                  <td>
+                    <input style="max-width: 8rem;" type="text" class="tktInput" v-model="task.ticket_id">
+                  </td>
+                  <td>
+                    <input type="text" class="tktInput" v-model="task.summary">
+                  </td>
+                  <td>
+                    <vuejs-datepicker input-class="dateInpt" format="yyyy/MM/dd" class="tktInput"
+                      v-model="task.task_start_date">
                     </vuejs-datepicker>
-                  </div>
-                </td>
-                <td>
-                  <div v-show="!t.edit" v-on:click="edit(t)">{{t.task_end_date}}</div>
-                  <div v-show="t.edit">
-                    <vuejs-datepicker input-class="dateInpt" format="yyyy/MM/dd" class="tktInput" v-model="t.task_end_date">
+                  </td>
+                  <td>
+                    <vuejs-datepicker input-class="dateInpt" format="yyyy/MM/dd" class="tktInput" v-model="task.task_end_date">
                     </vuejs-datepicker>
-                  </div>
-                </td>
-                <td>
-                  <div v-show="!t.edit" v-on:click="edit(t)">{{t.estimateHours }}</div>
-                  <div v-show="t.edit"><input style="max-width: 3rem;" type="number" class="tktInput"
-                      v-model="t.estimateHours">
-                  </div>
-                </td>
-                <td>
-                  <div v-show="!t.edit" v-on:click="edit(t)">{{t.assignees.join(', ')}}</div>
-                  <div v-show="t.edit">
-                    <multiselect class="tktInput" v-model="t.assignees" :options="members" :multiple="true"
+                  </td>
+                  <td>
+                    <input style="max-width: 3rem;" type="number" class="tktInput" v-model="task.estimateHours">
+                  </td>
+                  <td>
+                    <multiselect class="tktInput" v-model="task.assignees" :options="members" :multiple="true"
                       :close-on-select="false" :clear-on-select="false" :preserve-search="true" placeholder="assign"
                       :hide-selected="true">
                     </multiselect>
-                  </div>
-                </td>
-                <td><button class="btn btn-sm btn-outline-success" v-show="t.edit"
-                    v-on:click="saveTicket(t)">Done</button><button v-show="!t.edit"
-                    class="btn btn-sm btn-outline-danger" @click="deleteTicket(t)">Delete</button></td>
-              </tr>
-              <tr>
-                <td>
-                  <input style="max-width: 8rem;" type="text" class="tktInput" v-model="task.ticket_id">
-                </td>
-                <td>
-                  <input type="text" class="tktInput" v-model="task.summary">
-                </td>
-                <td>
-                  <vuejs-datepicker input-class="dateInpt" format="yyyy/MM/dd" class="tktInput"
-                    v-model="task.task_start_date">
-                  </vuejs-datepicker>
-                </td>
-                <td>
-                  <vuejs-datepicker input-class="dateInpt" format="yyyy/MM/dd" class="tktInput" v-model="task.task_end_date">
-                  </vuejs-datepicker>
-                </td>
-                <td>
-                  <input style="max-width: 3rem;" type="number" class="tktInput" v-model="task.estimateHours">
-                </td>
-                <td>
-                  <multiselect class="tktInput" v-model="task.assignees" :options="members" :multiple="true"
-                    :close-on-select="false" :clear-on-select="false" :preserve-search="true" placeholder="assign"
-                    :hide-selected="true">
-                  </multiselect>
-                </td>
-                <td><button class="btn btn-sm btn-outline-success" v-show="task" v-on:click="saveTicket(task)">Done</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <div class="wrapper mt-5">
-            <div class="gantt">
-              <div class="gantt__row gantt__row--months">
-                <div class="gantt__row-first"></div>
-                <span>Sun<br>{{sun}}</span><span>Mon<br>{{mon}}</span><span>Tue<br>{{tue}}</span>
-                <span>Wed<br>{{wed}}</span><span>Thu<br>{{thu}}</span><span>Fri<br>{{fri}}</span>
-                <span>Sat<br>{{sat}}</span>
-              </div>
-              <div class="gantt__row gantt__row--lines" data-month="5">
-                <span></span><span class="marker"></span><span></span>
-                <span></span><span></span><span></span>
-                <span></span><span class="marker"></span>
-              </div>
-              <div class="gantt__row" v-for="m of members">
-                <div class="gantt__row-first">
-                  {{m}}
+                  </td>
+                  <td><button class="btn btn-sm btn-outline-success" v-show="task" v-on:click="saveTicket(task)">Done</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="wrapper mt-5">
+              <div class="gantt">
+                <div class="gantt__row gantt__row--months">
+                  <div class="gantt__row-first"></div>
+                  <span>Sun<br>{{sun}}</span><span>Mon<br>{{mon}}</span><span>Tue<br>{{tue}}</span>
+                  <span>Wed<br>{{wed}}</span><span>Thu<br>{{thu}}</span><span>Fri<br>{{fri}}</span>
+                  <span>Sat<br>{{sat}}</span>
                 </div>
-                <ul class="gantt__row-bars">
-                  <li v-for="t of membersTasks[m]" v-bind:style="t.grid" style="background-color: #2ecaac;">{{t.summary}}
-                  </li>
-                </ul>
+                <div class="gantt__row gantt__row--lines" data-month="5">
+                  <span></span><span class="marker"></span><span></span>
+                  <span></span><span></span><span></span>
+                  <span></span><span class="marker"></span>
+                </div>
+                <div class="gantt__row" v-for="m of members">
+                  <div class="gantt__row-first">
+                    {{m}}
+                  </div>
+                  <ul class="gantt__row-bars">
+                    <li v-for="t of membersTasks[m]" v-bind:style="t.grid" style="background-color: #2ecaac;">{{t.summary}}
+                    </li>
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
+          
         </div>
         <!-- entries -->
         <div class="tab-pane fade p-3" id="entries" role="tabpanel" aria-labelledby="entries-tab">
-          <h6>Filter :</h6>
-          <div class="btn-group">
-            <div class="dropdown">
-              <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
-                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Members: {{ selected_member_filter }}
-              </button>
-              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <a class="dropdown-item" href="#" v-for="(member,index) in project_members_filters" :key="index" @click="selected_member_filter = member">{{member}}</a>
+          <div v-if="!project ||  !getAllEntriesApiLoaded" class="loader">
+            <div  class="d-flex justify-content-center">
+              <div class="spinner-border mt-20" role="status">
+                <span class="sr-only ">Loading...</span>
               </div>
             </div>
           </div>
-          <div class="btn-group">
-            <div class="dropdown">
-              <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
-                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Status: {{ selected_status_filter }}
-              </button>
-              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <a class="dropdown-item" v-for="(status,index) in statuses" :key="index" @click="selected_status_filter=status" href="#">{{status}}</a>
+          <div v-if="project &&  getAllEntriesApiLoaded">
+            <h6>Filter :</h6>
+            <div class="btn-group">
+              <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Members: {{ selected_member_filter }}
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                  <a class="dropdown-item" href="#" v-for="(member,index) in project_members_filters" :key="index" @click="selected_member_filter = member">{{member}}</a>
+                </div>
               </div>
             </div>
+            <div class="btn-group">
+              <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Status: {{ selected_status_filter }}
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                  <a class="dropdown-item" v-for="(status,index) in statuses" :key="index" @click="selected_status_filter=status" href="#">{{status}}</a>
+                </div>
+              </div>
+            </div>
+            <table class="table table-hover table-responsive table-sm mt-5">
+              <thead>
+                <tr>
+                  <th><input type="checkbox"></th>
+                  <th>Ticket</th>
+                  <th>Date</th>
+                  <th>Hours</th>
+                  <th>By</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(entry,index) in entries" :key="index">
+                  <td><input type="checkbox"></td>
+                  <td>{{entry.task}}</td>
+                  <td>{{entry.entry_date | formatDate }}</td>
+                  <td>{{entry.minutes | formatDuration}}</td>
+                  <td>{{entry.employee}}</td>
+                  <td>
+                    <span v-show="entry.entry_status ==='pending'">
+                      <svg @click="approveEntry(entry)" class="bi bi-check-square-fill" width="1em" height="1em" viewBox="0 0 16 16"
+                        fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd"
+                          d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm10.03 4.97a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+                      </svg>
+                      <svg @click="rejectEntry(entry)" class="bi bi-x-square-fill" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd"
+                          d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm9.854 4.854a.5.5 0 0 0-.708-.708L8 7.293 4.854 4.146a.5.5 0 1 0-.708.708L7.293 8l-3.147 3.146a.5.5 0 0 0 .708.708L8 8.707l3.146 3.147a.5.5 0 0 0 .708-.708L8.707 8l3.147-3.146z" />
+                      </svg>
+                    </span><button class="btn btn-sm btn-outline-success" v-show="entry.entry_status==='approved'"
+                    >Approved</button><button v-show="entry.entry_status==='rejected'"
+                    class="btn btn-sm btn-outline-danger" >Rejected</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <nav aria-label="...">
+              <ul class="pagination justify-content-end">
+                <li class="page-item disabled">
+                  <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                </li>
+                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                <li class="page-item active" aria-current="page">
+                  <a class="page-link" href="#">2 <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item">
+                  <a class="page-link" href="#">Next</a>
+                </li>
+              </ul>
+            </nav>
           </div>
-          <table class="table table-hover table-responsive table-sm mt-5">
-            <thead>
-              <tr>
-                <th><input type="checkbox"></th>
-                <th>Ticket</th>
-                <th>Date</th>
-                <th>Hours</th>
-                <th>By</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(entry,index) in entries" :key="index">
-                <td><input type="checkbox"></td>
-                <td>{{entry.task}}</td>
-                <td>{{entry.entry_date | formatDate }}</td>
-                <td>{{entry.minutes | formatDuration}}</td>
-                <td>{{entry.employee}}</td>
-                <td>
-                  <span v-show="entry.entry_status ==='pending'">
-                    <svg @click="approveEntry(entry)" class="bi bi-check-square-fill" width="1em" height="1em" viewBox="0 0 16 16"
-                      fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                      <path fill-rule="evenodd"
-                        d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm10.03 4.97a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
-                    </svg>
-                    <svg @click="rejectEntry(entry)" class="bi bi-x-square-fill" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor"
-                      xmlns="http://www.w3.org/2000/svg">
-                      <path fill-rule="evenodd"
-                        d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm9.854 4.854a.5.5 0 0 0-.708-.708L8 7.293 4.854 4.146a.5.5 0 1 0-.708.708L7.293 8l-3.147 3.146a.5.5 0 0 0 .708.708L8 8.707l3.146 3.147a.5.5 0 0 0 .708-.708L8.707 8l3.147-3.146z" />
-                    </svg>
-                  </span><button class="btn btn-sm btn-outline-success" v-show="entry.entry_status==='approved'"
-                  >Approved</button><button v-show="entry.entry_status==='rejected'"
-                  class="btn btn-sm btn-outline-danger" >Rejected</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <nav aria-label="...">
-            <ul class="pagination justify-content-end">
-              <li class="page-item disabled">
-                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
-              </li>
-              <li class="page-item"><a class="page-link" href="#">1</a></li>
-              <li class="page-item active" aria-current="page">
-                <a class="page-link" href="#">2 <span class="sr-only">(current)</span></a>
-              </li>
-              <li class="page-item"><a class="page-link" href="#">3</a></li>
-              <li class="page-item">
-                <a class="page-link" href="#">Next</a>
-              </li>
-            </ul>
-          </nav>
+          
         </div>
       </div>
       <div class="modal fade" id="exampleModal1" tabindex="-1" aria-labelledby="exampleModalLabel1" aria-hidden="true">
@@ -637,6 +686,7 @@
   <script src="assets/dist/js/vuejs-datepicker.min.js"></script>
   <script src="assets/dist/js/bootstrap.bundle.min.js"></script>
   <script src="assets/dist/js/vue-multiselect.min.js"></script>
+  <script src="assets/dist/js/sweetalert.js"></script>
   <script>
     function openDetailsModal() {
       new bootstrap.Modal(document.getElementById('exampleModal'), {}).show();
@@ -647,6 +697,10 @@
     const app = new Vue({
       el: '#app',
       data: {
+        prjectMembersApiLoaded:null,
+        getProjectTasksApiLoaded: null,
+        getAllEntriesApiLoaded: null,
+        getEmployeeDetailsApiLoaded: null,
         allEmployeesDetails:[],
         employees:[],
         selectedEmployees:[],
@@ -694,18 +748,8 @@
           task_start_date: moment().startOf('week').format("yyyy/MM/DD"),
           task_end_date: moment().endOf('week').format("yyyy/MM/DD"),
         },
-        members: [
-          "Vijay",
-          "Pradeep",
-          "Satish",
-          "Ganesh",
-          "Aswanth",
-          "Aravi",
-          "Innacy"
-        ],
-        managers:[
-          "Satish"
-        ],
+        members: [],
+        managers:[],
         membersTasks: {},
         tasks: [],
         allTasks: [],
@@ -733,6 +777,7 @@
         },
 
         getEmployeeDetails: function(){
+          this.getEmployeeDetailsApiLoaded=false
           axios.get('http://localhost:9000/employee/get_all')
             .then(response => {
               const data = response.data
@@ -742,6 +787,7 @@
                   this.allEmployeesDetails = [...data["Employees"]]
                 } 
               }
+              this.getEmployeeDetailsApiLoaded=true
             }).catch(error => {
               console.log(error);
             })
@@ -761,6 +807,14 @@
             data["employee_id"]=employeeDetails.employee_id
             this.addProjectMembersApi(data)
           });
+          this.$swal({
+            title: "Added Members",
+            text: "New project members are added!",
+            icon: "success",
+            buttons: false,
+            timer: 2000,
+          })
+
         },
         addProjectMembersApi: function(data){
           axios.post('http://localhost:9000/project/add_project_members', data)
@@ -772,6 +826,7 @@
               });
         },
         getProjectMembers: function(){
+          this.prjectMembersApiLoaded=false
           const url= 'http://localhost:9000/project/get_project_members/'+ this.project.project_id
           axios.get(url)
             .then(response => {
@@ -783,25 +838,43 @@
                   console.log(this.allProjectMembers)
                 } 
               }
+              this.prjectMembersApiLoaded=true
             }).catch(error => {
               console.log(error);
             })
         },
         deleteProjectMember: function(name){
-          member=this.allProjectMembers.find(mem => mem.employee_name == name)
+          var member=this.allProjectMembers.find(mem => mem.employee_name == name)
           console.log(member)
           url='http://localhost:9000/project/delete_project_members/'+this.project.project_id+'/'+member.employee_id
-          axios.delete(url)
-            .then(response => {
-              console.log(response)
-              alert("deleted")
-              this.getProjectMembers()
-            }).catch(error => {
-              console.log(error);
-            })
+          this.$swal({
+            title: "Are you sure?",
+            text: member.employee_name+" wiil be removed from the project: " +this.project.project_name,
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+          })
+          .then((willDelete) => {
+            if (willDelete) {
+                axios.delete(url)
+              .then(response => {
+                console.log(response)
+                this.$swal(member.employee_name+" is removed from the project: " +this.project.project_name, {
+                  icon: "success",
+                });
+                this.getProjectMembers()
+              }).catch(error => {
+                console.log(error);
+              }) 
+            } else {
+              this.$swal(member.employee_name+" will still be in the project");
+            }
+          });
+          
         },
         
         getProjectTasks: function() {
+          this.getProjectTasksApiLoaded = false
           url='http://localhost:9000/task/get_project_task/'+this.project.project_id
           axios.get(url)
             .then(response => {
@@ -816,9 +889,9 @@
                     t["estimateHours"] = this.formatMinutesToHours(t.task_estimated_minutes)  
                     t.edit=false
                   })
-                }
-                
+                } 
               }
+              this.getProjectTasksApiLoaded = true
               console.log(this.fetched_project_tasks)
               this.loadTasks()
             }).catch(error => {
@@ -938,10 +1011,23 @@
               axios.put(url, data)
               .then(response => {
                 this.getProjectTasks()
-                alert("updated");
+                this.$swal({
+                  title: "Updated",
+                  text: "The ticket is updated!",
+                  icon: "success",
+                  buttons: false,
+                  timer: 2000,
+                })
               })
               .catch(function (error) {
                 console.log(error);
+                this.$swal({
+                  title: "Sorry",
+                  text: "There is some problem with updating!",
+                  icon: "error",
+                  buttons: false,
+                  timer: 2000,
+                })
               });
           } else {
             // add
@@ -949,10 +1035,23 @@
             axios.post('http://localhost:9000/task/add_task', data)
               .then(response => {
                 this.getProjectTasks()
-                alert("added");
+                this.$swal({
+                  title: "Ticket Added",
+                  text: "A new ticket is created!",
+                  icon: "success",
+                  buttons: false,
+                  timer: 2000,
+                })
               })
               .catch(function (error) {
                 console.log(error);
+                this.$swal({
+                  title: "Sorry",
+                  text: "Ticket could not be created!",
+                  icon: "error",
+                  buttons: false,
+                  timer: 2000,
+                })
               });
           
             this.task = {
@@ -970,17 +1069,35 @@
           // delete api
           if(t.task_id){
             url='http://localhost:9000/task/delete_task/'+t.task_id
-          axios.delete(url)
-            .then(response => {
-              console.log(response)
-              alert("deleted")
-              this.getProjectTasks()
-            }).catch(error => {
-              console.log(error);
+            
+            this.$swal({
+              title: "Are you sure?",
+              text: "ticket wiil be permanently deleted",
+              icon: "warning",
+              buttons: true,
+              dangerMode: true,
             })
+            .then((willDelete) => {
+              if (willDelete) {
+                axios.delete(url)
+                .then(response => {
+                  console.log(response)
+                  this.$swal("ticket is permanently deleted ", {
+                    icon: "success",
+                  });
+                  this.getProjectTasks()
+                }).catch(error => {
+                  console.log(error);
+                })
+              } else {
+                this.$swal("ticket will still be present");
+              }
+            });
+          
           }
         },
         getAllEntries: function(){
+          this.getAllEntriesApiLoaded=false
           url='http://localhost:9000/entry/get_project_entry/'+this.project.project_id
           axios.get(url)
             .then(response => {
@@ -992,6 +1109,7 @@
                 }
                 
               }
+              this.getAllEntriesApiLoaded=true
               // console.log(this.fetched_project_tasks)
               // this.loadTasks()
             }).catch(error => {
@@ -1004,10 +1122,23 @@
               .then(response => {
                 this.getAllEntries()
                 this.entry_update_modal={}
-                alert("updated");
+                this.$swal({
+                  title: "Updated",
+                  text: "The entry status is updated!",
+                  icon: "success",
+                  buttons: false,
+                  timer: 2000,
+                })
               })
               .catch(function (error) {
                 console.log(error);
+                this.$swal({
+                  title: "Sorry",
+                  text: "There is some problem with updating!",
+                  icon: "error",
+                  buttons: false,
+                  timer: 2000,
+                })
               });
         },
         approveEntry: function(entry){
@@ -1026,12 +1157,49 @@
           this.updateStatusOfEntry(data)
         },
         rejectEntry: function(entry){
-          entry.entry_status="rejected"
-          entry.rejecter_id=this.approver.id
-          entry.rejected_on=moment().format()
-          this.entry_update_modal={}
-          this.entry_update_modal=entry
-          new bootstrap.Modal(document.getElementById('exampleModalReject'), {}).show();
+          this.$swal({
+            title: "Are you sure?",
+            text: "the following entry wiil be rejected" ,
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+          })
+          .then((willReject) => {
+            if (willReject) {
+
+              this.$swal({
+                text: 'Reason for the rejection',
+                content: "input",
+                button: {
+                  text: "Update",
+                  closeModal: false,
+                },
+              })
+              .then(reason => {
+                if(reason){
+                  entry.entry_status="rejected"
+                  entry.rejecter_id=this.approver.id
+                  entry.rejected_on=moment().format()
+                  this.entry_update_modal={}
+                  this.entry_update_modal=entry
+                  var data={}
+                  data["entry_id"] = this.entry_update_modal.entry_id
+                  data["task_id"] = this.entry_update_modal.task_id
+                  data["entry_status"]= this.entry_update_modal.entry_status
+                  data["entry_reject_reason"]= reason
+                  data["rejecter_id"]=this.entry_update_modal.rejecter_id
+                  data["rejected_on"]=this.entry_update_modal.rejected_on
+                  this.updateStatusOfEntry(data)
+                } else{
+                  this.$swal(" No action is taken ");
+                }
+              })
+            } else {
+              this.$swal(" No action is taken ");
+            }
+          });
+          
+          
         },
         submitRejection: function(){
           var data={}
@@ -1041,7 +1209,7 @@
           data["entry_reject_reason"]=this.entry_update_modal.entry_reject_reason
           data["rejecter_id"]=this.entry_update_modal.rejecter_id
           data["rejected_on"]=this.entry_update_modal.rejected_on
-          this.updateStatusOfEntry(data)
+          
           
         }
       },

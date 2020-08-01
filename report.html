@@ -9,6 +9,7 @@
 
     <!-- Bootstrap core CSS -->
     <link href="assets/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/dist/css/vue-multiselect.min.css" rel="stylesheet">
 
 
     <style>
@@ -33,6 +34,17 @@
         
         .activityRow>th {
             width: 50%;
+        }
+        
+        .loader {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transform: -webkit-translate(-50%, -50%);
+            transform: -moz-translate(-50%, -50%);
+            transform: -ms-translate(-50%, -50%);
+            color: darkred;
         }
     </style>
 
@@ -74,81 +86,84 @@
     <!-- Begin page content -->
     <main class="flex-shrink-0">
         <div class="container" id="report">
-            <div class="row mt-5">
-                <div class="col">
-                    <h1>Weekly report</h1>
+            <div v-if="!loading" class="loader">
+                <div class="d-flex justify-content-center">
+                    <div class="spinner-border mt-20" role="status">
+                        <span class="sr-only ">Loading...</span>
+                    </div>
                 </div>
-                <div class="col text-right">
-                    <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
-                        <div class="btn-group" role="group">
-                            <button id="btnGroupDrop1" type="button" class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                              This week
+            </div>
+            <div id="maincontent" v-if="loading">
+                <div class="row mt-5">
+                    <div class="col">
+                        <h1>Weekly report</h1>
+                    </div>
+                    <div class="col text-right">
+                        <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+                            <div class="btn-group" role="group">
+                                <button id="btnGroupDrop1" type="button" class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                              Switch week
                             </button>
-                            <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                <li><button type="button" class="dropdown-item" v-on:click="previousweek">Last week</button></li>
-                                <li><button type="button" class="dropdown-item" v-on:click="nextweek">Next week</button></li>
-                            </ul>
-                        </div>
-                        <button type="button" class="btn btn-outline-secondary" v-on:click="previousweek"><</button>
-                        <button type="button" class="btn btn-outline-secondary" v-on:click="nextweek">></button>
-                    </div>
-                </div>
-            </div>
-            <div class="card mt-3">
-                <div class="card-body">
-                    <div class="btn-group" role="group">
-                        <div class="btn-group" role="group">
-                            <select v-model="selectedproject" class="form-select">
-                              <option selected>Project</option>
-                              <option v-for="project in dropdownprojects" :key="project.id">{{project.name}}</option>
-                            </select>
-                        </div>
-                        <div class="btn-group" role="group">
-                            <select v-model="selectedtask" class="form-select">
-                              <option selected>Ticket</option>
-                              <option v-for="task in dropdowntasks" :key="task.id">{{task.name}}</option>
-                            </select>
-                        </div>
-                        <div class="btn-group" role="group">
-                            <select v-model="selectedemployee" class="form-select">
-                              <option selected>Employee</option>
-                            <option v-for="employee in dropdownemployees" :key="employee.id">{{employee.name}}</option>
-                          </select>
+                                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                    <li><button type="button" class="dropdown-item" v-on:click="previousweek">Last week</button></li>
+                                    <li><button type="button" class="dropdown-item" v-on:click="nextweek">Next week</button></li>
+                                </ul>
+                            </div>
+                            <button type="button" class="btn btn-outline-secondary" v-on:click="previousweek"><</button>
+                            <button type="button" class="btn btn-outline-secondary" v-on:click="nextweek">></button>
                         </div>
                     </div>
-                    <button class="btn btn-primary" @click="filter">Filter</button>
                 </div>
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <div class="btn-group" role="group">
+                            <div class="btn-group" role="group">
+                                <multiselect v-model="selectedproject" :options="dropdownprojectsname" :allow-empty="false" :preserve-search="true" placeholder="Project" :hide-selected="true">
+                                </multiselect>
+                            </div>
+                            <div class="btn-group" role="group">
+                                <multiselect class="filterticket" v-model="selectedtask" :options="dropdowntasksname" :preserve-search="true" placeholder="Ticket">
+                                </multiselect>
+                            </div>
+                            <div class="btn-group" role="group">
+                                <multiselect v-model="selectedemployee" :options="dropdownemployeesname" :multiple="true" :close-on-select="false" :clear-on-select="false" :preserve-search="true" placeholder="Employee" :hide-selected="true">
+                                </multiselect>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" @click="filter" :disabled="selectedproject == null">Filter</button>
+                    </div>
+                </div>
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th colspan="8">Total: <b>{{total}}</b> <a class="float-right">Export</a></th>
+                        </tr>
+                        <tr>
+                            <th class="align-middle" scope="col">User / Project</th>
+                            <th class="align-middle text-center" scope="col" v-for="(value, name, index) in days">
+                                {{dayEntries[value].day}}<br>{{dayEntries[value].date_f}}</th>
+                        </tr>
+                    </thead>
+                    <tbody v-for="e in selectedemployee">
+                        <tr class="projectRow">
+                            <th>{{e}}</th>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr class="activityRow" v-for="t in selectedTasks[e]">
+                            <th>{{tasks[t].project}}: {{tasks[t].summary}}</th>
+                            <td class="align-middle text-center" v-for="(value, name, index) in days">
+                                {{edit(getHours(value,t))}}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-            <table class="table table-hover" v-if="!loading">
-                <thead>
-                    <tr>
-                        <th colspan="8">Total: <b>{{total}}</b> <a class="float-right">Export</a></th>
-                    </tr>
-                    <tr>
-                        <th class="align-middle" scope="col">User / Project</th>
-                        <th class="align-middle text-center" scope="col" v-for="(value, name, index) in days">
-                            {{dayEntries[value].day}}<br>{{dayEntries[value].date_f}}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="projectRow">
-                        <th>{{selectedemployee}}</th>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr class="activityRow" v-for="t in selectedTasks">
-                        <th>{{tasks[t].project}}: {{tasks[t].summary}}</th>
-                        <td class="align-middle text-center" v-for="(value, name, index) in days">
-                            {{edit(getHours(value,t))}}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
         </div>
     </main>
     <footer class="footer mt-auto py-3 bg-light">
@@ -163,6 +178,8 @@
     <script src="assets/dist/js/axios.min.js"></script>
     <script src="assets/dist/js/moment.js"></script>
     <script src="assets/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/dist/js/vue-multiselect.min.js"></script>
+    <script src="assets/dist/js/sweetalert.js"></script>
     <script src="report.js"></script>
 </body>
 

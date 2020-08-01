@@ -1,16 +1,8 @@
 var app = new Vue({
     el: '#report',
     data: {
-        loading: true,
+        loading: false,
         weeklyDatePicker: '',
-        week: '',
-        mon: '',
-        tue: '',
-        wed: '',
-        thu: '',
-        fri: '',
-        sat: '',
-        sun: '',
         dayEntries: {},
         days: [
             "sun",
@@ -21,34 +13,27 @@ var app = new Vue({
             "fri",
             "sat"
         ],
-        total: 200,
-        selectedTasks: [],
+        total: 0,
+        tasksId: [],
         tasks: {},
+        selectedTasks: {},
         entries: [],
         dropdowntasks: [],
         dropdownprojects: [],
         dropdownemployees: [],
-        selectedproject: 'Project',
-        selectedtask: 'Ticket',
-        selectedemployee: 'Employee'
+        dropdownprojectsname: [],
+        dropdowntasksname: [],
+        dropdownemployeesname: [],
+        selectedproject: null,
+        selectedtask: null,
+        selectedemployee: [],
+        week: {}
+    },
+    components: {
+        Multiselect: window.VueMultiselect.default
     },
     methods: {
         dateloader: function() {
-            var current = new Date(this.weeklyDatePicker)
-            var first = current.getDate() - current.getDay();
-            var last = first + 6;
-            var firstday = moment(new Date(current.setDate(first))).format("YYYY/MM/DD");
-            var lastday = moment(new Date(current.setDate(last))).format("YYYY/MM/DD");
-            this.week = firstday + " - " + lastday;
-            this.week = firstday + " - " + lastday;
-
-            this.sun = moment(new Date(current.setDate(first))).format("MM/DD");
-            this.sat = moment(new Date(current.setDate(last))).format("MM/DD");
-            this.mon = moment(new Date(current.setDate(first + 1))).format("MM/DD");
-            this.tue = moment(new Date(current.setDate(first + 2))).format("MM/DD");
-            this.wed = moment(new Date(current.setDate(first + 2))).format("MM/DD");
-            this.thu = moment(new Date(current.setDate(last - 2))).format("MM/DD");
-            this.fri = moment(new Date(current.setDate(last - 1))).format("MM/DD");
             this.dayEntries = {};
             for (let i = 0; i < 7; i++) {
                 const d = moment(new Date(this.weeklyDatePicker)).day(i);
@@ -59,49 +44,73 @@ var app = new Vue({
                     date_f2: d.format()
                 };
             }
-            // console.log(this.tasks)
-            this.calcEntries();
         },
         calcEntries: function() {
             this.days.forEach(d => {
                 this.dayEntries[d].tasks = {};
-                this.selectedTasks.forEach(t => {
+                this.tasksId.forEach(t => {
                     this.entries.forEach(e => {
                         if (e.entry_date.substring(0, 10) == this.dayEntries[d].date && e.task_id == t) {
                             this.dayEntries[d].tasks[t] = e;
                         }
                     })
                 });
-                // this.calculateTotal(d);
             });
-            console.log(this.dayEntries)
+            this.calculateTotal();
+        },
+        calculateTotal: function() {
+            this.selectedemployee.forEach(emp => {
+                this.selectedTasks[emp].forEach(t => {
+                    this.days.forEach(d => {
+                        if (this.dayEntries[d].tasks[t])
+                            this.total += this.dayEntries[d].tasks[t].minutes / 60;
+                    })
+
+                })
+            })
+            console.log(this.total)
+            this.loading = true;
         },
         previousweek() {
+            this.loading = false;
             var current = new Date(this.weeklyDatePicker)
             var first = current.getDate() - current.getDay() + 1;
             var last = first - 6;
 
             this.weeklyDatePicker = moment(new Date(current.setDate(last))).format("YYYY/MM/DD");
-            this.dateloader()
+            this.dateloader();
+            this.filter();
         },
         nextweek() {
+            this.loading = false;
             var current = new Date(this.weeklyDatePicker)
             var first = current.getDate() - current.getDay() + 1;
             var last = first + 6;
 
             this.weeklyDatePicker = moment(new Date(current.setDate(last))).format("YYYY/MM/DD");
-            this.dateloader()
+            this.dateloader();
+            this.filter();
         },
         getReportDropdowns() {
             axios.get('http://localhost:9000/report/get_dropdowns')
                 .then(response => {
                     const data = response.data
-                        //console.log(data)
+                    console.log(data)
                     if (data) {
                         this.dropdownprojects = [...data["project"]]
                         this.dropdowntasks = [...data["task"]]
                         this.dropdownemployees = [...data["employee"]]
+                        for (i = 0; i < this.dropdownprojects.length; i++) {
+                            this.dropdownprojectsname[i] = Object.values(this.dropdownprojects[i])[1];
+                        }
+                        for (i = 0; i < this.dropdowntasks.length; i++) {
+                            this.dropdowntasksname[i] = Object.values(this.dropdowntasks[i])[1];
+                        }
+                        for (i = 0; i < this.dropdownemployees.length; i++) {
+                            this.dropdownemployeesname[i] = Object.values(this.dropdownemployees[i])[1];
+                        }
                     }
+                    this.loading = true;
                 }).catch(error => {
                     console.log(error);
                 })
@@ -124,62 +133,96 @@ var app = new Vue({
             return hours != 0 ? hours + ":00" : " "
         },
         filter: function() {
-            if (this.selectedemployee != 'Employee') {
-                this.selectedTasks = [];
-                const values = Object.values(this.tasks)
-                values.forEach(t => {
-                    if (t.assignees.length != 0) {
-                        t.assignees.forEach(a => {
-                            if (a == this.selectedemployee) {
-                                this.selectedTasks.push(t.task_id)
-                            }
+            this.loading = false;
+            this.week.fromdate = moment(new Date(this.weeklyDatePicker)).day(0).format();
+            this.week.todate = moment(new Date(this.weeklyDatePicker)).day(6).format();
+            var projectid
+            this.dropdownprojects.forEach(t => {
+                if (this.selectedproject == Object.values(t)[1]) {
+                    projectid = Object.values(t)[0]
+                }
+            })
+            axios.post('http://localhost:9000/task/get_project_task_by_week/' + projectid, this.week)
+                .then(response => {
+                    this.tasks = {};
+                    if (response.data.Tasks != null) {
+                        response.data.Tasks.forEach(r => {
+                            this.tasks[r.task_id] = r
+                            this.tasksId.push(r.task_id)
+                        })
+                        this.$swal({
+                            title: "Tasks found",
+                            text: "Project Tasks fetched!",
+                            icon: "success",
+                            buttons: false,
+                            timer: 2000,
+                        })
+                    } else {
+                        this.$swal({
+                            title: "No Tasks found",
+                            text: " No Project Tasks fetched!",
+                            icon: "error",
+                            buttons: false,
+                            timer: 2000,
                         })
                     }
-                })
-                console.log(this.selectedTasks)
-            }
-            if (this.selectedproject != 'Project') {
-                this.selectedTasks.forEach(id => {
-                    console.log(id, this.tasks[id].project, this.selectedproject)
-                    if (this.tasks[id].project != this.selectedproject) {
-                        this.selectedTasks.pop(id);
+                    // console.log(this.tasks)
+                }).catch(error => { console.log(error); });
+            axios.post('http://localhost:9000/entry/get_project_entry_by_week/' + projectid, this.week)
+                .then(response => {
+                    this.entries = [];
+                    if (response.data.Entries != null) {
+                        response.data.Entries.forEach(r => {
+                            this.entries[r.entry_id] = r
+                        })
                     }
-                })
-                console.log(this.selectedTasks)
-            }
-            if (this.selectedtask != 'Ticket') {
-                this.selectedTasks.forEach(id => {
-                    console.log(this.tasks[id].summary, this.selectedtask)
-                    if (this.tasks[id].summary != this.selectedtask) {
-                        this.selectedTasks.pop(id);
+                    if (this.selectedemployee.length == 0) {
+                        Object.values(this.tasks).forEach(t => {
+                            t.assignees.forEach(a => {
+                                if (!this.selectedemployee.includes(a)) {
+                                    this.selectedemployee.push(a)
+                                }
+                            })
+                        })
                     }
-                })
-                console.log(this.selectedTasks)
-            }
-            this.$forceUpdate();
-            this.calcEntries();
-        }
+                    this.selectedTasks = {};
+
+                    // console.log(this.selectedTasks)
+                    if (this.selectedtask != null) {
+                        var taskid
+                        this.dropdowntasks.forEach(t => {
+                            if (this.selectedtask == Object.values(t)[1]) {
+                                taskid = Object.values(t)[0]
+                            }
+                        })
+                        this.selectedemployee.forEach(emp => {
+                            this.selectedTasks[emp] = [];
+                            Object.values(this.tasks).forEach(t => {
+                                if (t.assignees.includes(emp) && t.task_id == taskid) {
+                                    this.selectedTasks[emp].push(t.task_id)
+                                }
+                            })
+                        })
+                    } else {
+                        this.selectedemployee.forEach(emp => {
+                            this.selectedTasks[emp] = [];
+                            Object.values(this.tasks).forEach(t => {
+                                if (t.assignees.includes(emp)) {
+                                    this.selectedTasks[emp].push(t.task_id)
+                                }
+                            })
+                        })
+                    }
+                    this.calcEntries();
+                }).catch(error => { console.log(error); });
+        },
+        // istasks: function(employeename) {
+        //     return this.selectedTasks[employeename].length == 0 ? true : false;
+        // }
     },
     created() {
         this.getReportDropdowns();
-        axios.get('http://localhost:9000/task/get_all')
-            .then(response => {
-                if (response.data.Tasks != null) {
-                    response.data.Tasks.forEach(r => {
-                        this.tasks[r.task_id] = r
-                    })
-                }
-            }).catch(error => { console.log(error); });
-        axios.get('http://localhost:9000/entry/get_all')
-            .then(response => {
-                if (response.data.Entries != null) {
-                    response.data.Entries.forEach(r => {
-                        this.entries[r.entry_id] = r
-                    })
-                }
-                this.weeklyDatePicker = moment(new Date()).format("YYYY-MM-DD");
-                this.dateloader();
-                this.loading = false;
-            }).catch(error => { console.log(error); });
+        this.weeklyDatePicker = moment(new Date()).format("YYYY-MM-DD");
+        this.dateloader();
     }
 });

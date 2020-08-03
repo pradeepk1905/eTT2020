@@ -5,8 +5,15 @@ var app = new Vue({
     },
     data: {
         loading: false,
+        taskfetched: false,
+        taskcreated: true,
+        entryfetched: false,
+        entrycreated: true,
         weeklyDatePicker: '',
-        week: '',
+        mobileView: false,
+        showView: 'mon',
+        dayEntries: {},
+        weekdata: '',
         mon: '',
         tue: '',
         wed: '',
@@ -14,9 +21,6 @@ var app = new Vue({
         fri: '',
         sat: '',
         sun: '',
-        mobileView: false,
-        showView: 'mon',
-        dayEntries: {},
         days: [
             "sun",
             "mon",
@@ -38,32 +42,39 @@ var app = new Vue({
             "Sick Leave"
         ],
         selectedTasks: [],
+        leaveTasks: [],
+        projectTasks: [],
         tasks: {},
         task: {},
         entries: [],
-        entry: {}
+        entry: {},
+        week: {}
     },
     methods: {
         dateSelected: function(date) {
+            this.loading = false;
+            this.taskfetched = false;
+            this.entryfetched = false;
             this.weeklyDatePicker = date;
+            this.getEmployeeTask();
+            this.getEmployeeEntry();
             this.dateloader();
+            this.loading = true;
         },
         dateloader: function() {
-            var current = new Date(this.weeklyDatePicker)
-            var first = current.getDate() - current.getDay();
-            var last = first + 6;
-            var firstday = moment(new Date(current.setDate(first))).format("YYYY/MM/DD");
-            var lastday = moment(new Date(current.setDate(last))).format("YYYY/MM/DD");
-            this.week = firstday + " - " + lastday;
-            this.week = firstday + " - " + lastday;
+            // var current = new Date(this.weeklyDatePicker)
+            // var first = current.getDate() - current.getDay();
+            // var last = first + 6;
+            // var firstday = moment(new Date(current.setDate(first))).format("YYYY/MM/DD");
+            // var lastday = moment(new Date(current.setDate(last))).format("YYYY/MM/DD");
 
-            this.sun = moment(new Date(current.setDate(first))).format("MM/DD");
-            this.sat = moment(new Date(current.setDate(last))).format("MM/DD");
-            this.mon = moment(new Date(current.setDate(first + 1))).format("MM/DD");
-            this.tue = moment(new Date(current.setDate(first + 2))).format("MM/DD");
-            this.wed = moment(new Date(current.setDate(first + 2))).format("MM/DD");
-            this.thu = moment(new Date(current.setDate(last - 2))).format("MM/DD");
-            this.fri = moment(new Date(current.setDate(last - 1))).format("MM/DD");
+            // this.sun = moment(new Date(current.setDate(first))).format("MM/DD");
+            // this.sat = moment(new Date(current.setDate(last))).format("MM/DD");
+            // this.mon = moment(new Date(current.setDate(first + 1))).format("MM/DD");
+            // this.tue = moment(new Date(current.setDate(first + 2))).format("MM/DD");
+            // this.wed = moment(new Date(current.setDate(first + 2))).format("MM/DD");
+            // this.thu = moment(new Date(current.setDate(last - 2))).format("MM/DD");
+            // this.fri = moment(new Date(current.setDate(last - 1))).format("MM/DD");
             this.dayEntries = {};
             for (let i = 0; i < 7; i++) {
                 const d = moment(new Date(this.weeklyDatePicker)).day(i);
@@ -88,7 +99,6 @@ var app = new Vue({
                 });
                 this.calculateTotal(d);
             });
-            this.loading = true;
             console.log(this.dayEntries)
         },
         openDetailsModal: function(day, tid) {
@@ -153,6 +163,8 @@ var app = new Vue({
             }
             if (val >= 0) {
                 if (val > 0 && !this.dayEntries[target.dataset.day].tasks[target.dataset.key]) {
+                    this.entryfetched = false;
+                    this.entrycreated = false;
                     //create new entry and process
                     this.entry.task_id = parseInt(target.dataset.key);
                     this.entry.employee_id = 111;
@@ -167,6 +179,7 @@ var app = new Vue({
                     this.dayEntries[target.dataset.day].tasks[target.dataset.key].minutes = val * 60;
                     this.dayEntries[target.dataset.day].tasks[target.dataset.key].entry_start = moment().format();
                     this.dayEntries[target.dataset.day].tasks[target.dataset.key].entry_end = moment().add(val, 'hours').format();
+                    this.dayEntries[target.dataset.day].tasks[target.dataset.key].entry_status = "pending";
 
                     this.entry.entry_id = this.dayEntries[target.dataset.day].tasks[target.dataset.key].entry_id;
                     this.entry.task_id = parseInt(target.dataset.key);
@@ -183,13 +196,12 @@ var app = new Vue({
             }
         },
         addModalEvent: function() {
-            this.loading = false;
+            this.entryfetched = false;
             this.entries.forEach(e => {
                 if (e.entry_date == this.currentTask.entry_date && e.task_id == this.currentTask.task_id) {
                     this.currentTask.toTime = moment(this.currentTask.fromTime, "HH:mm").add(this.currentTask.hours, 'h').format("HH:mm")
                     e.description = this.currentTask.description;
                     e.minutes = this.currentTask.hours * 60;
-                    e.entry_status = this.currentTask.status;
 
                     this.entry.entry_id = e.entry_id
                     this.entry.task_id = e.task_id;
@@ -204,7 +216,7 @@ var app = new Vue({
                 }
             });
             this.$forceUpdate();
-            this.dateloader();
+            this.calcEntries();
         },
         openTasksModal: function() {
             new bootstrap.Modal(document.getElementById('tasksModal'), {}).show();
@@ -231,6 +243,8 @@ var app = new Vue({
             this.$forceUpdate();
         },
         addTask: function(t) {
+            this.taskfetched = false;
+            this.taskcreated = false;
             this.task.ticket_id = "Leave ticket";
             this.task.summary = t;
             this.task.task_start_date = moment().format();
@@ -246,6 +260,14 @@ var app = new Vue({
                     this.selectedTasks = []
                     this.getEmployeeTask()
                     console.log(response)
+                    this.$swal({
+                        title: "Task Added",
+                        text: "New Task created!",
+                        icon: "success",
+                        buttons: false,
+                        timer: 2000,
+                    })
+                    this.taskcreated = true;
                 }).catch(error => { console.log(error); });
             this.$forceUpdate();
             bootstrap.Modal.getInstance(document.getElementById('tasksModal')).hide();
@@ -253,60 +275,85 @@ var app = new Vue({
         createEntry: function() {
             axios.post('http://localhost:9000/entry/add_entry', this.entry)
                 .then(response => {
-                    console.log(response)
                     this.getEmployeeEntry();
+                    console.log(response);
+                    this.$swal({
+                        title: "Entry Added",
+                        text: "New Entry created!",
+                        icon: "success",
+                        buttons: false,
+                        timer: 4000,
+                    })
+                    this.entrycreated = true;
                 }).catch(error => { console.log(error); });
         },
         updateEntry: function(entryid) {
             axios.put('http://localhost:9000/entry/update_entry/' + entryid, this.entry)
                 .then(response => {
-                    console.log(response)
-                }).catch(error => { console.log(error); });
-        },
-        getEmployeeEntry: function() {
-            axios.get('http://localhost:9000/entry/get_employee_entry/' + 111)
-                .then(response => {
-                    if (response.data.Entries != null) {
-                        response.data.Entries.forEach(r => {
-                            this.entries[r.entry_id] = r
-                        })
-                    }
-                    this.dateloader();
+                    console.log(response);
+                    this.$swal({
+                        title: "Updated",
+                        text: "Your changes are applied!",
+                        icon: "success",
+                        buttons: false,
+                        timer: 2000,
+                    })
                 }).catch(error => { console.log(error); });
         },
         getEmployeeTask: function() {
-            axios.get('http://localhost:9000/task/get_employee_task/' + 111)
+            this.week.fromdate = moment(new Date(this.weeklyDatePicker)).day(0).format();
+            this.week.todate = moment(new Date(this.weeklyDatePicker)).day(6).format();
+            axios.post('http://localhost:9000/task/get_employee_task_by_week/' + 111, this.week)
                 .then(response => {
+                    this.tasks = {}
+                    this.selectedTasks = []
                     if (response.data.Tasks != null) {
                         response.data.Tasks.forEach(r => {
                             this.tasks[r.task_id] = r
                             this.selectedTasks.push(r.task_id)
                         })
                     }
-                    this.dateloader();
+                    this.calcEntries();
+                    this.orderingtasks();
+                    this.taskfetched = true;
                 }).catch(error => { console.log(error); });
+        },
+        getEmployeeEntry: function() {
+            this.week.fromdate = moment(new Date(this.weeklyDatePicker)).day(0).format();
+            this.week.todate = moment(new Date(this.weeklyDatePicker)).day(6).format();
+            axios.post('http://localhost:9000/entry/get_employee_entry_by_week/' + 111, this.week)
+                .then(response => {
+                    this.entries = []
+                    if (response.data.Entries != null) {
+                        response.data.Entries.forEach(r => {
+                            this.entries[r.entry_id] = r
+                        })
+                    }
+                    this.calcEntries();
+                    this.entryfetched = true;
+                }).catch(error => { console.log(error); });
+        },
+        orderingtasks: function() {
+            this.leaveTasks = [];
+            this.projectTasks = [];
+            for (index = 0; index < this.selectedTasks.length; index++) {
+                t = this.selectedTasks[index]
+                if (this.tasks[t].project == "Leave") {
+                    this.leaveTasks.push(t);
+                } else {
+                    this.projectTasks.push(t);
+                }
+            }
         }
     },
     mounted() {
-        axios.get('http://localhost:9000/task/get_employee_task/' + 111)
-            .then(response => {
-                if (response.data.Tasks != null) {
-                    response.data.Tasks.forEach(r => {
-                        this.tasks[r.task_id] = r
-                        this.selectedTasks.push(r.task_id)
-                    })
-                }
-            }).catch(error => { console.log(error); });
-        axios.get('http://localhost:9000/entry/get_employee_entry/' + 111)
-            .then(response => {
-                if (response.data.Entries != null) {
-                    response.data.Entries.forEach(r => {
-                        this.entries[r.entry_id] = r
-                    })
-                }
-                this.weeklyDatePicker = moment(new Date()).format("YYYY-MM-DD");
-                this.dateloader();
-            }).catch(error => { console.log(error); });
+        this.weeklyDatePicker = moment(new Date()).format("YYYY-MM-DD");
+        this.week.fromdate = moment(new Date(this.weeklyDatePicker)).day(0).format();
+        this.week.todate = moment(new Date(this.weeklyDatePicker)).day(6).format();
+        this.dateloader();
+        this.getEmployeeTask();
+        this.getEmployeeEntry();
+        this.loading = true;
         this.winWidth()
     }
 });

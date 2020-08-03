@@ -1,65 +1,71 @@
 /* Custom page CSS
 -------------------------------------------------- */
 
+
 /* Not required for template or sticky footer method. */
 
 main>.container {
-  padding: 60px 15px 0;
+    padding: 60px 15px 0;
 }
 
 .bg-dark {
-  background-color: #42389d !important;
+    background-color: #42389d !important;
 }
 
 header a.nav-link {
-  color: rgba(255, 255, 255, .55);
+    color: rgba(255, 255, 255, .55);
 }
 
 a.nav-link {
-  font-size: 14px;
+    font-size: 14px;
 }
 
 h1 {
-  font-size: 1.8rem !important;
+    font-size: 1.8rem !important;
 }
 
 h2 {
-  font-size: 1.3rem !important;
+    font-size: 1.3rem !important;
 }
 
 h4 {
-  font-size: 1.2rem !important;
+    font-size: 1.2rem !important;
 }
 
 th {
-  font-size: 0.8rem;
+    font-size: 0.8rem;
 }
 
 .timeInput {
-  width: 85%;
-  display: inline;
-  padding: 0 !important;
-  border: none;
+    width: 85%;
+    display: inline;
+    padding: 0 !important;
+    border: none;
 }
 
-.timeInput:focus{
-  border: none !important;
-  outline:none !important;
-  box-shadow:none !important;
+.timeInput:focus {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.timeInput.pending {
+    background: white;
 }
 
 .timeInput.approved {
-  background: #bdffbd;
+    background: #bdffbd;
 }
 
 .timeInput.rejected {
-  background: #ffbdbd;
+    background: #ffbdbd;
 }
 
 .calPicker {
-  display: none !important;
+    display: none !important;
 }
+
 .vdp-datepicker,
 .vdp-datepicker>div {
-  display: inline;
+    display: inline;
 }

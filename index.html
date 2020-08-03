@@ -9,9 +9,6 @@
 
     <!-- Bootstrap core CSS -->
     <link href="assets/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Loading css -->
-    <link href="assets/dist/css/vue-loading.css" rel="stylesheet">
-
 
     <style>
         .bd-placeholder-img {
@@ -35,6 +32,17 @@
         tr.projectRow {
             background: #b9c9ef;
         }
+        
+        .loader {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transform: -webkit-translate(-50%, -50%);
+            transform: -moz-translate(-50%, -50%);
+            transform: -ms-translate(-50%, -50%);
+            color: darkred;
+        }
     </style>
 
 
@@ -43,7 +51,6 @@
 </head>
 
 <body class="d-flex flex-column h-100">
-
     <header>
         <!-- Fixed navbar -->
         <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
@@ -74,30 +81,38 @@
 
     <!-- Begin page content -->
     <main class="flex-shrink-0">
-        <div class="container" id="employee-weekly-entry" v-if="loading">
-            <div class="row mt-5">
-                <div class="col">
-                    <h1>Timesheet</h1>
-                </div>
-                <div class="col text-right">
-                    <!-- <a class="btn btn-outline-secondary" href="calendar.html">calendar view</a> -->
+        <div class="container" id="employee-weekly-entry">
+            <div v-if="!loading || !taskfetched || !entryfetched || !entrycreated || !taskcreated" class="loader">
+                <div class="d-flex justify-content-center">
+                    <div class="spinner-border mt-20" role="status">
+                        <span class="sr-only ">Loading...</span>
+                    </div>
                 </div>
             </div>
-            <div class="mt-4 row">
-                <div class="col-sm">
-                    <h4>
-                        Week :
-                        <small class="text-muted">{{week}}
+            <div id="maincontent" v-if="loading  && taskfetched && entryfetched && entrycreated && taskcreated">
+                <div class="row mt-5">
+                    <div class="col">
+                        <h1>Timesheet</h1>
+                    </div>
+                    <div class="col text-right">
+                        <!-- <a class="btn btn-outline-secondary" href="calendar.html">calendar view</a> -->
+                    </div>
+                </div>
+                <div class="mt-4 row">
+                    <div class="col-sm">
+                        <h4>
+                            Week :
+                            <small class="text-muted">{{weekdata}}
               <vuejs-datepicker class="pl-1" input-class="calPicker" @selected="dateSelected" format="yyyy-MM-dd"
                 calendar-button></vuejs-datepicker>
               </small>
-                    </h4>
+                        </h4>
+                    </div>
+                    <div class="col-sm text-right">
+                        <!-- <button class="btn btn-primary btn-sm" onclick="save()">Save</button> -->
+                    </div>
                 </div>
-                <div class="col-sm text-right">
-                    <!-- <button class="btn btn-primary btn-sm" onclick="save()">Save</button> -->
-                </div>
-            </div>
-            <!-- <div style="position: relative;" aria-live="assertive" aria-atomic="true">
+                <!-- <div style="position: relative;" aria-live="assertive" aria-atomic="true">
                 <div class="toast" id="saveToast" role="alert" style="position: absolute; top: 0; right: 0;">
                     <div class="toast-header">
                         <strong class="mr-auto">Saved</strong>
@@ -111,156 +126,163 @@
                     </div>
                 </div>
             </div> -->
-            <table class="table table-bordered" v-if="loading">
-                <thead>
-                    <tr style=" background: rgb(66, 56, 157);color: white;" v-show="!mobileView">
-                        <th class="align-middle" scope="col">Project / Activity</th>
-                        <th class="align-middle text-center" scope="col" v-for="(value, name, index) in days">
-                            {{dayEntries[value].day}}<br>{{dayEntries[value].date_f}}</th>
-                    </tr>
-                    <tr style=" background: rgb(66, 56, 157);color: white;" v-show="mobileView">
-                        <th class="align-middle" scope="col">Project / Activity</th>
-                        <th class="align-middle text-center c-sun" v-show="showViewFn('sun')" scope="col">
-                            <div class="btn-group btn-block" role="group" aria-label="Basic example">
-                                <button disabled type="button" class="btn btn-primary">
+                <table class="table table-bordered" id="employeeentry">
+                    <thead>
+                        <tr style=" background: rgb(66, 56, 157);color: white;" v-show="!mobileView">
+                            <th class="align-middle" scope="col">Project / Activity</th>
+                            <th class="align-middle text-center" scope="col" v-for="(value, name, index) in days">
+                                {{dayEntries[value].day}}<br>{{dayEntries[value].date_f}}</th>
+                        </tr>
+                        <tr style=" background: rgb(66, 56, 157);color: white;" v-show="mobileView">
+                            <th class="align-middle" scope="col">Project / Activity</th>
+                            <th class="align-middle text-center c-sun" v-show="showViewFn('sun')" scope="col">
+                                <div class="btn-group btn-block" role="group" aria-label="Basic example">
+                                    <button disabled type="button" class="btn btn-primary">
                   &lt;</button> <button disabled type="button" class="btn btn-primary">Sun<br>{{sun}}
                 </button>
-                                <button type="button" class="btn btn-primary" v-on:click="changeView('mon')">&gt;</button>
-                            </div>
-                        </th>
-                        <th class="align-middle text-center c-mon" v-show="showViewFn('mon')" scope="col">
-                            <div class="btn-group btn-block" role="group" aria-label="Basic example">
-                                <button type="button" class="btn btn-primary" v-on:click="changeView('sun')">
+                                    <button type="button" class="btn btn-primary" v-on:click="changeView('mon')">&gt;</button>
+                                </div>
+                            </th>
+                            <th class="align-middle text-center c-mon" v-show="showViewFn('mon')" scope="col">
+                                <div class="btn-group btn-block" role="group" aria-label="Basic example">
+                                    <button type="button" class="btn btn-primary" v-on:click="changeView('sun')">
                   &lt;</button> <button disabled type="button" class="btn btn-primary">Mon<br>{{mon}}
                 </button>
-                                <button type="button" class="btn btn-primary" v-on:click="changeView('tue')">&gt;</button>
-                            </div>
-                        </th>
-                        <th class="align-middle text-center c-tue" v-show="showViewFn('tue')" scope="col">
-                            <div class="btn-group btn-block" role="group" aria-label="Basic example">
-                                <button type="button" class="btn btn-primary" v-on:click="changeView('mon')">
+                                    <button type="button" class="btn btn-primary" v-on:click="changeView('tue')">&gt;</button>
+                                </div>
+                            </th>
+                            <th class="align-middle text-center c-tue" v-show="showViewFn('tue')" scope="col">
+                                <div class="btn-group btn-block" role="group" aria-label="Basic example">
+                                    <button type="button" class="btn btn-primary" v-on:click="changeView('mon')">
                   &lt;</button> <button disabled type="button" class="btn btn-primary">Tue<br>{{tue}}
                 </button>
-                                <button type="button" class="btn btn-primary" v-on:click="changeView('wed')">&gt;</button>
-                            </div>
-                        </th>
-                        <th class="align-middle text-center c-wed" v-show="showViewFn('wed')" scope="col">
-                            <div class="btn-group btn-block" role="group" aria-label="Basic example">
-                                <button type="button" class="btn btn-primary" v-on:click="changeView('tue')">
+                                    <button type="button" class="btn btn-primary" v-on:click="changeView('wed')">&gt;</button>
+                                </div>
+                            </th>
+                            <th class="align-middle text-center c-wed" v-show="showViewFn('wed')" scope="col">
+                                <div class="btn-group btn-block" role="group" aria-label="Basic example">
+                                    <button type="button" class="btn btn-primary" v-on:click="changeView('tue')">
                   &lt;</button> <button disabled type="button" class="btn btn-primary">Wed<br>{{wed}}
                 </button>
-                                <button type="button" class="btn btn-primary" v-on:click="changeView('thu')">&gt;</button>
-                            </div>
-                        </th>
-                        <th class="align-middle text-center c-thu" v-show="showViewFn('thu')" scope="col">
-                            <div class="btn-group btn-block" role="group" aria-label="Basic example">
-                                <button type="button" class="btn btn-primary" v-on:click="changeView('wed')">
+                                    <button type="button" class="btn btn-primary" v-on:click="changeView('thu')">&gt;</button>
+                                </div>
+                            </th>
+                            <th class="align-middle text-center c-thu" v-show="showViewFn('thu')" scope="col">
+                                <div class="btn-group btn-block" role="group" aria-label="Basic example">
+                                    <button type="button" class="btn btn-primary" v-on:click="changeView('wed')">
                   &lt; </button> <button disabled type="button" class="btn btn-primary">Thu<br>{{thu}}
                 </button>
-                                <button type="button" class="btn btn-primary" v-on:click="changeView('fri')">&gt;</button>
-                            </div>
-                        </th>
-                        <th class="align-middle text-center c-fri" v-show="showViewFn('fri')" scope="col">
-                            <div class="btn-group btn-block" role="group" aria-label="Basic example">
-                                <button type="button" class="btn btn-primary" v-on:click="changeView('thu')">
+                                    <button type="button" class="btn btn-primary" v-on:click="changeView('fri')">&gt;</button>
+                                </div>
+                            </th>
+                            <th class="align-middle text-center c-fri" v-show="showViewFn('fri')" scope="col">
+                                <div class="btn-group btn-block" role="group" aria-label="Basic example">
+                                    <button type="button" class="btn btn-primary" v-on:click="changeView('thu')">
                   &lt;</button> <button disabled type="button" class="btn btn-primary">Fri<br>{{fri}}
                 </button>
-                                <button type="button" class="btn btn-primary" v-on:click="changeView('sat')">&gt;</button>
-                            </div>
-                        </th>
-                        <th class="align-middle text-center c-sat" v-show="showViewFn('sat')" scope="col">
-                            <div class="btn-group btn-block" role="group" aria-label="Basic example">
-                                <button type="button" class="btn btn-primary" v-on:click="changeView('fri')">
+                                    <button type="button" class="btn btn-primary" v-on:click="changeView('sat')">&gt;</button>
+                                </div>
+                            </th>
+                            <th class="align-middle text-center c-sat" v-show="showViewFn('sat')" scope="col">
+                                <div class="btn-group btn-block" role="group" aria-label="Basic example">
+                                    <button type="button" class="btn btn-primary" v-on:click="changeView('fri')">
                   &lt;</button> <button disabled type="button" class="btn btn-primary">Sat<br>{{sat}}
                 </button>
-                                <button type="button" class="btn btn-primary" disabled>&gt;</button>
-                            </div>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="projectRow" v-for="t in selectedTasks"></tr>
-                    <tr class="activityRow" v-for="t in selectedTasks">
-                        <th>{{tasks[t].project}}: {{tasks[t].summary}}</th>
-                        <td v-for="(value, name, index) in days" v-show="showViewFn(value)" style="padding:0;position:relative">
-                            <input type="number" min="0" max="23.99" autocomplete="off" class="form-control timeInput text-center" :data-day="value" :data-key="t" @change="addEvent" :value="getHours(value,t)" v-bind:class="getStatus(value,t)">
-                            <img style="height: 38px;position: absolute;right: 0;" v-on:click="openDetailsModal(value,t)" src="https://clockify.me/assets/images/ui-icons/input-dots-menu.svg">
-                        </td>
-                    </tr>
-                    <tr class="activityRow">
-                        <th><a href="#" class="nav-link p-0" v-on:click="openTasksModal()">+ Add Leave</a></th>
-                        <td class="c-sun" v-show="showViewFn('sun')"></td>
-                        <td class="c-mon" v-show="showViewFn('mon')"></td>
-                        <td class="c-tue" v-show="showViewFn('tue')"></td>
-                        <td class="c-wed" v-show="showViewFn('wed')"></td>
-                        <td class="c-thu" v-show="showViewFn('thu')"></td>
-                        <td class="c-fri" v-show="showViewFn('fri')"></td>
-                        <td class="c-sat" v-show="showViewFn('sat')"></td>
-                    </tr>
-                    <tr class="projectRow">
-                        <th>Total</th>
-                        <th class="align-middle text-center" v-for="(value, name, index) in days" v-show="showViewFn(value)">
-                            {{total[value]}}
-                        </th>
-                    </tr>
-                </tbody>
-            </table>
-            <div class="modal fade" id="tasksModal" tabindex="-1" aria-labelledby="tasksModal" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-body">
-                            <!-- <div class="mb-3">
+                                    <button type="button" class="btn btn-primary" disabled>&gt;</button>
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="projectRow" v-for="t in selectedTasks"></tr>
+                        <tr class="activityRow" v-for="t in projectTasks">
+                            <th>{{tasks[t].project}}: {{tasks[t].summary}}</th>
+                            <td v-for="(value, name, index) in days" v-show="showViewFn(value)" style="padding:0;position:relative">
+                                <input type="number" min="0" max="23.99" autocomplete="off" class="form-control timeInput text-center" :data-day="value" :data-key="t" @change="addEvent" :value="getHours(value,t)" v-bind:class="getStatus(value,t)" :disabled="getStatus(value,t) == 'approved'">
+                                <img style="height: 38px;position: absolute;right: 0;" v-on:click="openDetailsModal(value,t)" src="https://clockify.me/assets/images/ui-icons/input-dots-menu.svg" :disabled="getStatus(value,t) == 'approved'">
+                            </td>
+                        </tr>
+                        <tr class="activityRow" v-for="t in leaveTasks">
+                            <th>{{tasks[t].project}}: {{tasks[t].summary}}</th>
+                            <td v-for="(value, name, index) in days" v-show="showViewFn(value)" style="padding:0;position:relative">
+                                <input type="number" min="0" max="23.99" autocomplete="off" class="form-control timeInput text-center" :data-day="value" :data-key="t" @change="addEvent" :value="getHours(value,t)" v-bind:class="getStatus(value,t)" :disabled="getStatus(value,t) == 'approved'">
+                                <img style="height: 38px;position: absolute;right: 0;" v-on:click="openDetailsModal(value,t)" src="https://clockify.me/assets/images/ui-icons/input-dots-menu.svg" :disabled="getStatus(value,t) == 'approved'">
+                            </td>
+                        </tr>
+                        <tr class="activityRow">
+                            <th><a href="#" class="nav-link p-0" v-on:click="openTasksModal()">+ Add Leave</a></th>
+                            <td class="c-sun" v-show="showViewFn('sun')"></td>
+                            <td class="c-mon" v-show="showViewFn('mon')"></td>
+                            <td class="c-tue" v-show="showViewFn('tue')"></td>
+                            <td class="c-wed" v-show="showViewFn('wed')"></td>
+                            <td class="c-thu" v-show="showViewFn('thu')"></td>
+                            <td class="c-fri" v-show="showViewFn('fri')"></td>
+                            <td class="c-sat" v-show="showViewFn('sat')"></td>
+                        </tr>
+                        <tr class="projectRow">
+                            <th>Total</th>
+                            <th class="align-middle text-center" v-for="(value, name, index) in days" v-show="showViewFn(value)">
+                                {{total[value]}}
+                            </th>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="modal fade" id="tasksModal" tabindex="-1" aria-labelledby="tasksModal" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-body">
+                                <!-- <div class="mb-3">
                 <label for="exampleInputEmail1" class="form-label">Filter</label>
                 <input type="number" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
               </div> -->
-                            <div>
-                                <ul class="list-group">
-                                    <li class="list-group-item">
-                                        <span>Leave</span>
-                                        <ul class="list-group mt-1">
-                                            <li style="cursor: pointer;" class="list-group-item" v-for="(value, name, index) in projects">
-                                                <a v-on:click="addTask(value)">{{value}}</a>
-                                            </li>
-                                        </ul>
-                                    </li>
-                                </ul>
+                                <div>
+                                    <ul class="list-group">
+                                        <li class="list-group-item">
+                                            <span>Leave</span>
+                                            <ul class="list-group mt-1">
+                                                <li style="cursor: pointer;" class="list-group-item" v-for="(value, name, index) in projects">
+                                                    <a v-on:click="addTask(value)">{{value}}</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="exampleModalLabel">Detailed entry</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">Detailed entry</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                               <span aria-hidden="true">&times;</span>
                             </button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="exampleInputEmail1" class="form-label">Time spent</label>
-                                <input type="number" v-model="currentTask.hours" @change="addModalEvent" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
-                                <div id="timeHelp" class="form-text">Time spent in hours 3 / 3.5</div>
                             </div>
-                            <div class="mb-3">
-                                <div class="row">
-                                    <div class="col">
-                                        <label for="exampleInputEmail1" class="form-label">From Time</label>
-                                        <input type="time" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp" @change="addModalEvent" v-model="currentTask.fromTime">
-                                    </div>
-                                    <div class="col">
-                                        <label for="exampleInputEmail1" class="form-label">To Time</label>
-                                        <input type="time" class="form-control" id="exampleInputEmail2" aria-describedby="timeHelp" disabled @change="addModalEvent" v-model="currentTask.toTime">
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="exampleInputEmail1" class="form-label">Time spent</label>
+                                    <input type="number" v-model="currentTask.hours" @change="addModalEvent" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp" :disabled="currentTask.status == 'approved'">
+                                    <div id="timeHelp" class="form-text">Time spent in hours 3 / 3.5</div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="row">
+                                        <div class="col">
+                                            <label for="exampleInputEmail1" class="form-label">From Time</label>
+                                            <input type="time" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp" @change="addModalEvent" v-model="currentTask.fromTime" :disabled="currentTask.status == 'approved'">
+                                        </div>
+                                        <div class="col">
+                                            <label for="exampleInputEmail1" class="form-label">To Time</label>
+                                            <input type="time" class="form-control" id="exampleInputEmail2" aria-describedby="timeHelp" disabled @change="addModalEvent" v-model="currentTask.toTime">
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="mb-3">
-                                <label for="exampleInputPassword1" class="form-label">Details</label>
-                                <textarea class="form-control" @change="addModalEvent" v-model="currentTask.description" cols="30" rows="5"></textarea>
-                            </div>
-                            <div class="mb-3">
+                                <div class="mb-3">
+                                    <label for="exampleInputPassword1" class="form-label">Details</label>
+                                    <textarea class="form-control" @change="addModalEvent" v-model="currentTask.description" cols="30" rows="5" :disabled="currentTask.status == 'approved'"></textarea>
+                                </div>
+                                <!-- <div class="mb-3">
                                 <label for="exampleInputPassword1" class="form-label">Status</label>
                                 <select name="status" id="status" class="form-control" @change="addModalEvent" v-model="currentTask.status">
                   <option value="pending">Pending</option>
@@ -268,44 +290,45 @@
                   <option value="approved">Approved</option>
                 </select>
                                 <div id="timeHelp" class="form-text">For testing only</div>
+                            </div> -->
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="exampleModal2" tabindex="-1" aria-labelledby="exampleModalLabel2" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Detailed entry</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <div class="row">
+                                    <div class="col">
+                                        <label for="exampleInputEmail1" class="form-label">From Time</label>
+                                        <input type="time" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
+                                    </div>
+                                    <div class="col">
+                                        <label for="exampleInputEmail1" class="form-label">To Time</label>
+                                        <input type="time" class="form-control" id="exampleInputEmail2" aria-describedby="timeHelp">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="exampleInputPassword1" class="form-label">Details</label>
+                                <textarea class="form-control" cols="30" rows="5"></textarea>
                             </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="modal fade" id="exampleModal2" tabindex="-1" aria-labelledby="exampleModalLabel2" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Detailed entry</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <div class="row">
-                                <div class="col">
-                                    <label for="exampleInputEmail1" class="form-label">From Time</label>
-                                    <input type="time" class="form-control" id="exampleInputEmail1" aria-describedby="timeHelp">
-                                </div>
-                                <div class="col">
-                                    <label for="exampleInputEmail1" class="form-label">To Time</label>
-                                    <input type="time" class="form-control" id="exampleInputEmail2" aria-describedby="timeHelp">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="exampleInputPassword1" class="form-label">Details</label>
-                            <textarea class="form-control" cols="30" rows="5"></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
@@ -340,6 +363,7 @@
     <script src="assets/dist/js/axios.min.js"></script>
     <script src="assets/dist/js/moment.js"></script>
     <script src="assets/dist/js/vuejs-datepicker.min.js"></script>
+    <script src="assets/dist/js/sweetalert.js"></script>
     <!-- <script src="app.js"></script> -->
     <script src="index.js"></script>
 </body>

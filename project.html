@@ -718,7 +718,7 @@
         value: [],
         fetched_project_tasks: [],
         approver:{
-          name: "Aswanth", id:111
+          name: "Pradeep", id:121
         },
         options: [
           { name: 'Vue.js', language: 'JavaScript' },
@@ -773,7 +773,7 @@
           this.thu = moment(this.wed).add(1, 'd').format("MM/DD");
           this.fri = moment(this.thu).add(1, 'd').format("MM/DD");
           this.sat = moment(this.fri).add(1, 'd').format("MM/DD");
-          this.loadTasks();
+          this.getProjectTasks();
         },
 
         getEmployeeDetails: function(){
@@ -883,28 +883,34 @@
         
         getProjectTasks: function() {
           this.getProjectTasksApiLoaded = false
-          url='http://localhost:9000/task/get_project_task/'+this.project.project_id
-          axios.get(url)
-            .then(response => {
-              const data = response.data
-              if (data) {
-                this.fetched_project_tasks = []
-                if (data["Tasks"]){
-                  this.fetched_project_tasks = [...data["Tasks"]]
-                  this.fetched_project_tasks.forEach(t => {
-                    t.task_start_date= moment(String(t.task_start_date)).format('YYYY/MM/DD')
-                    t.task_end_date= moment(String(t.task_end_date)).format('YYYY/MM/DD')
-                    t["estimateHours"] = this.formatMinutesToHours(t.task_estimated_minutes)  
-                    t.edit=false
-                  })
-                } 
-              }
-              this.getProjectTasksApiLoaded = true
-              console.log(this.fetched_project_tasks)
-              this.loadTasks()
-            }).catch(error => {
-              console.log(error);
-            })
+          const data={}
+          data["fromdate"] =moment(String(this.startDate)).format()
+          data["todate"]=moment(String(this.endDate)).format()
+          if(data["fromdate"] && data["todate"]){
+            url='http://localhost:9000/task/get_project_task_by_week/'+this.project.project_id
+            axios.post(url,data)
+              .then(response => {
+                const data = response.data
+                if (data) {
+                  this.fetched_project_tasks = []
+                  if (data["Tasks"]){
+                    this.fetched_project_tasks = [...data["Tasks"]]
+                    this.fetched_project_tasks.forEach(t => {
+                      t.task_start_date= moment(String(t.task_start_date)).format('YYYY/MM/DD')
+                      t.task_end_date= moment(String(t.task_end_date)).format('YYYY/MM/DD')
+                      t["estimateHours"] = this.formatMinutesToHours(t.task_estimated_minutes)  
+                      t.edit=false
+                    })
+                  } 
+                }
+                this.getProjectTasksApiLoaded = true
+                console.log(this.fetched_project_tasks)
+                this.loadTasks()
+              }).catch(error => {
+                console.log(error);
+              })
+          }
+          
 
         },
         formatMinutesToHours : function(value) {
@@ -935,12 +941,12 @@
           // (moment(t.task_start_date).isSameOrAfter(this.startDate) &&
           //     moment(t.task_start_date).isSameOrBefore(this.endDate)) ||
           //     (moment(t.task_end_date).isSameOrAfter(this.startDate) &&
-          //       moment(t.task_end_date).isSameOrBefore(this.endDate))
+          //       moment(t.task_end_date).isSameOrBefore(this.endDate))          
 
           this.fetched_project_tasks.forEach(t =>{
             if (
               (moment(t.task_start_date).isSameOrBefore(this.endDate) &&
-              moment(t.task_end_date).isSameOrAfter(this.startDate))
+              moment(t.task_end_date).isSameOrAfter(this.startDate))              
             ){
               t.grid = {};
               if (moment(t.task_start_date).isSameOrBefore(this.startDate))
@@ -1282,6 +1288,11 @@
             this.members=members.map(member => member.employee_name)
             this.managers=[]
             this.managers=managers.map(manager => manager.employee_name)
+          }
+        },
+        'startDate':{
+          handler: function(val){
+            this.getProjectTasks()
           }
         }
       },

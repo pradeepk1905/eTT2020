@@ -13,7 +13,7 @@ var app = new Vue({
         mobileView: false,
         showView: 'mon',
         dayEntries: {},
-        weekdata: '',
+        weekrange: '',
         mon: '',
         tue: '',
         wed: '',
@@ -48,9 +48,32 @@ var app = new Vue({
         task: {},
         entries: [],
         entry: {},
-        week: {}
+        week: {},
+        employee: {
+            id:null,
+            name:null
+        }
     },
     methods: {
+        checkAuthorized: function(){
+        const url= 'http://localhost:9000/authorised'
+          axios.get(url)
+            .then(response => {
+              const data = response.data
+              if (data["success"] && data["message"]==='Authorized') {
+                this.employee.id = data["employee_id"]
+                this.employee.name = data["employee_name"]
+                console.log(this.employee)
+              } else{
+                console.log("unauthorized")
+                //window.location.href='sign-in/login.html'
+              }
+            }).catch((error) => {
+              console.log(error);
+              console.log("unauthorized")
+              //window.location.href='sign-in/login.html'
+            })
+        },
         dateSelected: function(date) {
             this.loading = false;
             this.taskfetched = false;
@@ -347,6 +370,7 @@ var app = new Vue({
         }
     },
     mounted() {
+        this.checkAuthorized()
         this.weeklyDatePicker = moment(new Date()).format("YYYY-MM-DD");
         this.week.fromdate = moment(new Date(this.weeklyDatePicker)).day(0).format();
         this.week.todate = moment(new Date(this.weeklyDatePicker)).day(6).format();

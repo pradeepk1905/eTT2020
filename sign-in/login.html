@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Hugo 0.72.0">
+    <title>Signin Template · Bootstrap</title>
+
+    <!-- <link rel="canonical" href="https://v5.getbootstrap.com/docs/5.0/examples/sign-in/"> -->
+
+    
+
+    <!-- Bootstrap core CSS -->
+<link href="../assets/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      .fg{
+        color:#b4bac0;
+        text-decoration: none;
+      }
+
+      .fg:hover{
+        color:#7d7e7f;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+
+    
+    <!-- Custom styles for this template -->
+    <link href="signin.css" rel="stylesheet">
+  </head>
+  <body  class="text-center">
+    
+  
+      <form id="login" v-on:submit.prevent class="form-signin">
+        
+        <!-- <img class="mb-4" src="../assets/brand/bootstrap-solid.svg" alt="" width="72" height="72"> -->
+        <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
+        <label for="inputEmail"  class="sr-only">Username</label>
+        <input v-model="username" type="text" id="inputEmail" class="form-control" placeholder="Username" required autofocus>
+        <label for="inputPassword" class="sr-only">Password</label>
+        <input v-model="password" type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+        <span v-if="msg"><p style="color:red;"> {{ msg }} </p></span>
+        <div class="checkbox mb-3">
+          <label>
+            <input type="checkbox" value="remember-me"> Remember me
+          </label>
+        </div>
+        <button class=" btn btn-lg btn-primary btn-block" :disabled='!username || !password' @click="signIn"  type="submit">Sign in</button>
+        <a class="fg" href="forgetPassword.html">Forgot <b>password</b>?</a>
+        <!-- <p class="mt-5 mb-3 text-muted">&copy; 2017-2020</p> -->
+      </form>  
+  
+      
+    
+    
+    <script src="../assets/dist/js/vue.js"></script>
+    <script src="../assets/dist/js/axios.min.js"></script>
+    <script src="../assets/dist/js/moment.js"></script>
+    <script src="../assets/dist/js/sweetalert.js"></script>
+
+    <script>
+      var loginPage = new Vue({
+        el:'#login',
+        data:{
+          msg:null,
+          username:null,
+          password:null,
+        },
+        methods:{
+          signIn: function(){
+            var data={}
+            const url='http://localhost:9000/login?username='+this.username+'&password='+ this.password
+            axios.post(url, data)
+              .then(response => {
+                const data=response.data
+                console.log(data)
+                if(data["success"]){
+                  window.location.href='../index.html'
+                }else{
+                  this.msg='username and password is not matching'
+                }
+                // this.$swal({
+                //   title: "Ticket Added",
+                //   text: "A new ticket is created!",
+                //   icon: "success",
+                //   buttons: false,
+                //   timer: 2000,
+                // })
+              })
+              .catch(error => {
+                console.log(error);
+                this.msg='username and password is not matching'
+                // this.$swal({
+                //   title: "Sorry",
+                //   text: "Ticket could not be created!",
+                //   icon: "error",
+                //   buttons: false,
+                //   timer: 2000,
+                // })
+              });
+          }
+        }
+      })
+    </script>
+
+    
+  </body>
+</html>
